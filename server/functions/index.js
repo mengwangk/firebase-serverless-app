@@ -1,37 +1,45 @@
 'use strict';
 
 const functions = require('firebase-functions');
-const firebase = require('firebase-admin');
 const express = require('express');
 const engines = require('consolidate');
 const path = require('path');
-const favicon = require('serve-favicon');
-const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const cors = require('cors');
 
-const firebaseApp = firebase.initializeApp(
-    functions.config().firebase
-);
-
-function getFacts(){
-    const ref = firebaseApp.database().ref('facts');
-    return ref.once('value').then(snap => snap.val());
-}
+const index = require('./routes/index');
+const queue = require('./routes/queue');
 
 const app = express();
 
 // view engine setup
-app.engine('mustache', engines.mustache);
+app.engine('hbs', engines.handlebars);
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'mustache');
+app.set('view engine', 'hbs');
 
-app.get('/', (request, response) => {
-    response.set('Cache-Control', 'public, max-age=300, s-maxage=600');
-    getFacts().then(facts => {
-        response.render('index', {'name': 'hello world'});
-    });
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+app.use('/', index);
+app.use('/queue', queue);
+
+// catch 404 and forward to error handler
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
+
+// error handler
+app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    res.render('error');
 });
 
 exports.app = functions.https.onRequest(app);

@@ -1,0 +1,21 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+         <!-- meta -->
+         {{> meta}}
+         <title>Error</title>
+    </head>
+
+    <body>
+       <!-- header -->
+        {{> header}}
+
+        <!-- Add your site or application content here -->
+        <h1>{{ message }}</h1>
+        <h2>{{ error.status }}</h2>
+        <pre>{{ error.stack }}</pre>
+
+       <!-- footer -->
+       {{> footer}}
+    </body>
+</html>
