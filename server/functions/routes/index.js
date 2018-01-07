@@ -1,6 +1,6 @@
 const express = require('express');
 const path = require('path');
-const constants = require('./constants');
+const constants = require('../shared/constants');
 
 const router = express.Router();
 

@@ -4,7 +4,6 @@ function define(name, value) {
         enumerable: true
     });
 }
-
 const partials = {
     meta : 'partials/meta',
     header: 'partials/header',
