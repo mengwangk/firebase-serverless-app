@@ -5,7 +5,7 @@ const constants = require('../shared/constants');
 const router = express.Router();
 
 router.get('/', function (req, res, next) {
-    res.render('index', { appName: constants.AppName, partials: Object.assign({}, constants.partials)});
+    res.render('index', { appName: constants.AppName, partials: Object.assign({}, constants.Partials)});
 });
 
 module.exports = router;

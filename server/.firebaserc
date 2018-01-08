@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "fireserver-7b850"
+    "default": "kyoala-dev",
+    "kyoala-dev": "kyoala-dev"
   }
 }
