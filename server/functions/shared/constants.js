@@ -22,8 +22,10 @@ const PARTIALS = {
     footer: 'partials/footer'
 };
 
+const APP_NAME = "kyoala";
+
 define("Partials", PARTIALS);
-define("AppName", 'kyoala');
+define("AppName", APP_NAME);
 
 // Error message
 define("InvalidData", "Invalid input");

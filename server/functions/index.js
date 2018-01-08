@@ -10,6 +10,7 @@ const constants = require('./shared/constants');
 
 const index = require('./routes/index');
 const queue = require('./routes/queue');
+const entity = require('./routes/entity');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 
 app.use('/', index);
+app.use('/entity', entity);
 app.use('/queue', queue);
 
 // catch 404 and forward to error handler
