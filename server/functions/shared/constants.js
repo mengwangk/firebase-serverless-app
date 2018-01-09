@@ -23,10 +23,15 @@ const PARTIALS = {
 };
 
 const APP_NAME = "kyoala";
+const ENTITY_COLLECTION = "entity";
+const QUEUE_COLLECTION = "queue";
 
 define("Partials", PARTIALS);
 define("AppName", APP_NAME);
+define("EntityCollection", ENTITY_COLLECTION);
+define("QueueCollection", QUEUE_COLLECTION);
 
 // Error message
-define("InvalidData", "Invalid input");
 define("ServerError", "Server error");
+define("InvalidData", "Invalid input");
+define("NoRecordFound", "No record found");

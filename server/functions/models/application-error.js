@@ -1,7 +1,8 @@
 class ApplicationError {
-    constructor(error, source) {
-       this.error = error;
-       this.source = source;
+    constructor(statusCode, error, source) {
+        this.statusCode = statusCode;
+        this.error = error;
+        this.source = source;
     }
 }
 
