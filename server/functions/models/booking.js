@@ -7,7 +7,7 @@ class Booking {
         this.name = name;
         this.contactNo = contactNo;
         this.noOfCustomers = noOfCustomers;
-        this.dateQueued = FieldValue.serverTimestamp;
+        this.bookedDate = Date.now();
     }
 }
 module.exports = Booking;

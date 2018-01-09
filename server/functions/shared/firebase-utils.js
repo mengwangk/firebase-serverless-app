@@ -11,21 +11,31 @@ const FireStore = (function() {
         functions.config().firebase
     );
     
-    self.saveEntity = function(entity){
-        const docData = JSON.stringify(entity);
-        const database = firebase.firestore();
-        docRef = database.collection(constants.EntityCollection).doc(entity.id);
-        doc = docRef.set(JSON.parse(docData), { merge: true });
+    const saveDoc = function(docRef, obj) {
+        const docData = JSON.stringify(obj);
+        const doc = docRef.set(JSON.parse(docData), { merge: true });
         return docData;
     }
 
-    self.getEntities = function(callback, entityId = null){
-        const database = firebase.firestore();
-        if (entityId != null) {
-            database.collection(constants.EntityCollection).doc(entityId).get()    
+    const getCollection = function(docRef, callback) {
+        docRef.get()
+            .then((snapshot) => {
+                var docList = [];
+                snapshot.forEach((doc) => {
+                    docList.push(doc.data());
+                });
+                callback(docList);
+            })
+            .catch((err) => {
+                callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err));
+            });
+    }
+
+    const getDoc = function(docRef, callback) {
+        docRef.get()
             .then((doc) => {
                if (!doc.exists) {
-                    callback(null, new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, "entityId: {0}".format(entityId)));
+                    callback(null, new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, "Path: {0}".format(docRef.path)));
                } else {
                     callback(doc.data());
                }
@@ -33,35 +43,54 @@ const FireStore = (function() {
             .catch((err) => {
                 callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err));
             });
-        } else {
-            // Retrieve all entities
-            database.collection(constants.EntityCollection).get()    
-                .then((snapshot) => {
-                    var entities = [];
-                    snapshot.forEach((doc) => {
-                        entities.push(doc.data());
-                    });
-                    callback(entities);
-                })
-                .catch((err) => {
-                    callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err));
-                });
-        }
     }
 
+    self.saveEntity = function(entity){
+         // Get entity document reference
+         docRef = firebase.firestore().collection(constants.EntityCollection).doc(entity.id);
+         return saveDoc(docRef, entity);
+    }
 
-
-
+    self.saveQueue = function(entityId, queue){
+        // Get queue document reference
+        docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queue.id);
+        return saveDoc(docRef, queue);
+    }
     
-    self.queue = function(entityId, queueId, customer) {
-       const docData = JSON.stringify(customer);
-       const database = firebase.firestore();
-       docRef = database.collection(entityId).doc(queueId).collection(queueId).doc(customer.id);
-       doc = docRef.set(JSON.parse(docData));
-       return docData;
+    self.saveBooking = function(entityId, queueId, booking) {
+        docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(booking.id);
+        return saveDoc(docRef, booking);
     }
-    return self;
 
+    self.getEntities = function(callback, entityId = null){
+        var docRef = null;
+        if (entityId != null) {
+            docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId); 
+            getDoc(docRef, callback);
+        } else {
+            docRef = firebase.firestore().collection(constants.EntityCollection); 
+            getCollection(docRef, callback);
+        }  
+    }
+
+    self.getQueues = function(callback, entityId, queueId = null){
+        var docRef = null;
+        if (queueId != null) {
+            docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId); 
+            getDoc(docRef, callback);
+        } else {
+            docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection); 
+            getCollection(docRef, callback);
+        }  
+    }
+
+    self.getBookings = function(callback, entityId, queueId){
+        var docRef = null;
+        docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId); 
+        getCollection(docRef, callback);
+    }
+
+    return self;
   })();
   
   
