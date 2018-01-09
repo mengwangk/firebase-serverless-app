@@ -4,3 +4,5 @@ firebase-debug.log
 .gradle/
 .idea/
 local.properties
+*.iml
+build/
