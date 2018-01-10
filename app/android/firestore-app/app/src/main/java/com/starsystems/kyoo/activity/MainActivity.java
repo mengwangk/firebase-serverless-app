@@ -1,58 +1,92 @@
 package com.starsystems.kyoo.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.widget.Button;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import com.starsystems.kyoo.R;
+import com.starsystems.kyoo.fragments.EightFragment;
+import com.starsystems.kyoo.fragments.FiveFragment;
+import com.starsystems.kyoo.fragments.FourFragment;
+import com.starsystems.kyoo.fragments.NineFragment;
+import com.starsystems.kyoo.fragments.OneFragment;
+import com.starsystems.kyoo.fragments.SevenFragment;
+import com.starsystems.kyoo.fragments.SixFragment;
+import com.starsystems.kyoo.fragments.TenFragment;
+import com.starsystems.kyoo.fragments.ThreeFragment;
+import com.starsystems.kyoo.fragments.TwoFragment;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
-    private Button btnSimpleTabs, btnScrollableTabs, btnIconTextTabs, btnIconTabs, btnCustomIconTextTabs;
+    private TabLayout tabLayout;
+    private ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        btnSimpleTabs = (Button) findViewById(R.id.btnSimpleTabs);
-        btnScrollableTabs = (Button) findViewById(R.id.btnScrollableTabs);
-        btnIconTextTabs = (Button) findViewById(R.id.btnIconTextTabs);
-        btnIconTabs = (Button) findViewById(R.id.btnIconTabs);
-        btnCustomIconTextTabs = (Button) findViewById(R.id.btnCustomIconTabs);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
 
-        btnSimpleTabs.setOnClickListener(this);
-        btnScrollableTabs.setOnClickListener(this);
-        btnIconTextTabs.setOnClickListener(this);
-        btnIconTabs.setOnClickListener(this);
-        btnCustomIconTextTabs.setOnClickListener(this);
-
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
     }
 
-    @Override
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnSimpleTabs:
-                startActivity(new Intent(MainActivity.this, SimpleTabsActivity.class));
-                break;
-            case R.id.btnScrollableTabs:
-                startActivity(new Intent(MainActivity.this, ScrollableTabsActivity.class));
-                break;
-            case R.id.btnIconTextTabs:
-                startActivity(new Intent(MainActivity.this, IconTextTabsActivity.class));
-                break;
-            case R.id.btnIconTabs:
-                startActivity(new Intent(MainActivity.this, IconTabsActivity.class));
-                break;
-            case R.id.btnCustomIconTabs:
-                startActivity(new Intent(MainActivity.this, CustomViewIconTextTabsActivity.class));
-                break;
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFrag(new OneFragment(), "ONE");
+        adapter.addFrag(new TwoFragment(), "TWO");
+        adapter.addFrag(new ThreeFragment(), "THREE");
+        adapter.addFrag(new FourFragment(), "FOUR");
+        adapter.addFrag(new FiveFragment(), "FIVE");
+        adapter.addFrag(new SixFragment(), "SIX");
+        adapter.addFrag(new SevenFragment(), "SEVEN");
+        adapter.addFrag(new EightFragment(), "EIGHT");
+        adapter.addFrag(new NineFragment(), "NINE");
+        adapter.addFrag(new TenFragment(), "TEN");
+        viewPager.setAdapter(adapter);
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        public ViewPagerAdapter(FragmentManager manager) {
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFrag(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
         }
     }
 }
