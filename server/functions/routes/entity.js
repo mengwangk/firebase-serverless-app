@@ -18,7 +18,7 @@ router.post('/', function (req, res, next) {
 
     // Get the entity
     const data = JSON.parse(req.body.entity); // customer info
-    const entity = new Entity(data.name);
+    const entity = new Entity(data.name, data.email);
   
     // TODO - validate the entity 
 
@@ -95,13 +95,12 @@ router.post('/:entityId/queue', function (req, res, next) {
     }
 
     const data = JSON.parse(req.body.queue); 
-    const queue = new Queue(data.name);
+    const queue = new Queue(data.name, data.capacity, data.prefix);
   
     // TODO - validate the queue
 
-
-    // Save the queue
-    const result = FirebaseUtils.fireStore.saveQueue(entityId, queue);
+    
+    const result = FirebaseUtils.fireStore.saveQueue(entityId, queue);  // Save the queue
     res.status(HttpStatus.CREATED).json(result);
 });
 

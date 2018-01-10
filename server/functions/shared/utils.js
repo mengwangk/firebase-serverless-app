@@ -14,7 +14,16 @@ const UUID = (function() {
   return self;
 })();
 
+const Prefix = (function () {
+  var self = {};
+  var chars = 'ABCDEFGHIJKLMNOPQURSTUVWXYZ';
+  self.generate = function() {
+    return chars.substr(Math.floor(Math.random() * chars.length-2), 1);
+  }
+  return self;
+})();
 
 module.exports = {
-    UUID: UUID
+    UUID: UUID,
+    Prefix: Prefix
 }

@@ -14,7 +14,7 @@ const FireStore = (function() {
     const saveDoc = function(docRef, obj) {
         const docData = JSON.stringify(obj);
         const doc = docRef.set(JSON.parse(docData), { merge: true });
-        return docData;
+        return obj;
     }
 
     const deleteDoc = function(docRef) {
@@ -54,20 +54,41 @@ const FireStore = (function() {
     }
 
     self.saveEntity = function(entity){
-         // Get entity document reference
-         docRef = firebase.firestore().collection(constants.EntityCollection).doc(entity.id);
+         var docRef = firebase.firestore().collection(constants.EntityCollection).doc(entity.id);
          return saveDoc(docRef, entity);
     }
 
     self.saveQueue = function(entityId, queue){
-        // Get queue document reference
-        docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queue.id);
+        var docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queue.id);
         return saveDoc(docRef, queue);
     }
-    
-    self.saveBooking = function(entityId, queueId, booking) {
-        docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(booking.id);
-        return saveDoc(docRef, booking);
+
+    self.saveBooking = function(callback, entityId, queueId, booking) {
+        var queueDocRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId);
+        var bookingDocRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(booking.id);
+        var transaction = firebase.firestore().runTransaction(t => {
+            return t.get(queueDocRef)
+                .then(doc => {
+                    if (doc.exists) { 
+                        var queue = doc.data();
+                        var newCounter = queue.counter + 1;
+                        booking.bookingNo = queue.prefix + newCounter.pad(3);
+                        var bookingData = JSON.stringify(booking);
+                        t.update(queueDocRef, { counter: newCounter });
+                        t.set(bookingDocRef, JSON.parse(bookingData));
+                        return Promise.resolve(booking);
+                    } else {
+                        return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 
+                            "Path: {0}".format(queueDocRef.path)));
+                    }
+                });
+        })
+        .then(results => {
+            callback(results);
+        })
+        .catch(err => {
+            callback(null, err);
+        });
     }
 
     self.getEntities = function(callback, entityId = null){
@@ -99,7 +120,7 @@ const FireStore = (function() {
     }
 
     self.deleteBooking = function(callback, entityId, queueId, bookingId) {
-        docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId);
+        var docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId);
         docRef.get()
             .then(doc => {
                 if (doc.exists) {

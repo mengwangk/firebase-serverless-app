@@ -33,20 +33,21 @@ router.post('/:entityId/:queueId', function (req, res, next) {
         return;
     }
 
-    // TODO - check if entity and queue exist
-
-
     // Get the booking and queue info from request body
-    const data = JSON.parse(req.body.booking); // booking info
-    const booking = new Booking(data.name, data.contactNo, data.noOfCustomers);
-  
-
+     const data = JSON.parse(req.body.booking); // booking info
+     const booking = new Booking(data.name, data.contactNo, data.noOfCustomers);
+   
     // TODO - validate the booking data
+    
 
-
-    // Save the booking info
-    const result = FirebaseUtils.fireStore.saveBooking(entityId, queueId, booking);
-    res.status(HttpStatus.CREATED).json(result);
+    let callback = (results, err = null) => {
+        if (err != null) {
+            res.status(err.statusCode).json(err);
+        } else {
+            res.status(HttpStatus.CREATED).json(results);
+        }
+    };
+    FirebaseUtils.fireStore.saveBooking(callback, entityId, queueId, booking);  // Save the booking info
 });
 
 // Clear a queue
