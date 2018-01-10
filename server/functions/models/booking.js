@@ -8,6 +8,7 @@ class Booking {
         this.contactNo = contactNo;
         this.noOfCustomers = noOfCustomers;
         this.bookedDate = Date.now();
+        this.bookingNo = "XXX";
     }
 }
 module.exports = Booking;

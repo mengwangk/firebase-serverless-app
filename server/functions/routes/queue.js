@@ -49,4 +49,40 @@ router.post('/:entityId/:queueId', function (req, res, next) {
     res.status(HttpStatus.CREATED).json(result);
 });
 
+// Clear a queue
+router.delete('/:entityId/:queueId', function (req, res, next) {
+    const entityId = req.params.entityId;   // entity id
+    const queueId = req.params.queueId;     // queue id
+
+    let callback = (results = "", err = null) => {
+        if (err != null) {
+            res.status(err.statusCode).json(err);
+        } else {
+            res.status(HttpStatus.NO_CONTENT).json(results);
+        }
+    };
+
+    // Delete all bookings - TODO
+    // https://firebase.google.com/docs/firestore/manage-data/delete-data
+
+});
+
+// Delete a booking
+router.delete('/:entityId/:queueId/:bookingId', function (req, res, next) {
+    const entityId = req.params.entityId;   // entity id
+    const queueId = req.params.queueId;     // queue id
+    const bookingId = req.params.bookingId;     // queue id
+
+    let callback = (results = "", err = null) => {
+        if (err != null) {
+            res.status(err.statusCode).json(err);
+        } else {
+            res.status(HttpStatus.NO_CONTENT).json(results);
+        }
+    };
+
+    // Delete the booking info
+    FirebaseUtils.fireStore.deleteBooking(callback, entityId, queueId, bookingId);
+});
+
 module.exports = router;

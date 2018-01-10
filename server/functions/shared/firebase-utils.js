@@ -17,6 +17,14 @@ const FireStore = (function() {
         return docData;
     }
 
+    const deleteDoc = function(docRef) {
+        const doc = docRef.delete().then( () => {
+            // Do nothing now
+        }).catch((err) => {
+            // Do nothing now
+        });
+    }
+
     const getCollection = function(docRef, callback) {
         docRef.get()
             .then((snapshot) => {
@@ -88,6 +96,22 @@ const FireStore = (function() {
         var docRef = null;
         docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId); 
         getCollection(docRef, callback);
+    }
+
+    self.deleteBooking = function(callback, entityId, queueId, bookingId) {
+        docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId);
+        docRef.get()
+            .then(doc => {
+                if (doc.exists) {
+                    deleteDoc(docRef);
+                    callback();
+                } else {
+                    callback(null, new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, "Path: {0}".format(docRef.path)));
+                }
+            })
+            .catch (err=> {
+                callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err));
+            });
     }
 
     return self;
