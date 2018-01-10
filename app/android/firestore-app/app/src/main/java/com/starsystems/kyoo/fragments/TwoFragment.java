@@ -1,4 +1,4 @@
-package info.androidhive.materialtabs.fragments;
+package com.starsystems.kyoo.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import info.androidhive.materialtabs.R;
+import com.starsystems.kyoo.R;
 
 
 public class TwoFragment extends Fragment{

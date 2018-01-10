@@ -1,4 +1,4 @@
-package info.androidhive.materialtabs.activity;
+package com.starsystems.kyoo.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -12,10 +12,10 @@ import android.support.v7.widget.Toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import info.androidhive.materialtabs.R;
-import info.androidhive.materialtabs.fragments.OneFragment;
-import info.androidhive.materialtabs.fragments.ThreeFragment;
-import info.androidhive.materialtabs.fragments.TwoFragment;
+import com.starsystems.kyoo.R;
+import com.starsystems.kyoo.fragments.OneFragment;
+import com.starsystems.kyoo.fragments.ThreeFragment;
+import com.starsystems.kyoo.fragments.TwoFragment;
 
 public class IconTextTabsActivity extends AppCompatActivity {
 

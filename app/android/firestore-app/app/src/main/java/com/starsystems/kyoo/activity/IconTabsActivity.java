@@ -1,4 +1,4 @@
-package info.androidhive.materialtabs.activity;
+package com.starsystems.kyoo.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -12,28 +12,22 @@ import android.support.v7.widget.Toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import info.androidhive.materialtabs.R;
-import info.androidhive.materialtabs.fragments.EightFragment;
-import info.androidhive.materialtabs.fragments.FiveFragment;
-import info.androidhive.materialtabs.fragments.FourFragment;
-import info.androidhive.materialtabs.fragments.NineFragment;
-import info.androidhive.materialtabs.fragments.OneFragment;
-import info.androidhive.materialtabs.fragments.SevenFragment;
-import info.androidhive.materialtabs.fragments.SixFragment;
-import info.androidhive.materialtabs.fragments.TenFragment;
-import info.androidhive.materialtabs.fragments.ThreeFragment;
-import info.androidhive.materialtabs.fragments.TwoFragment;
+import com.starsystems.kyoo.R;
+import com.starsystems.kyoo.fragments.OneFragment;
+import com.starsystems.kyoo.fragments.ThreeFragment;
+import com.starsystems.kyoo.fragments.TwoFragment;
 
-public class ScrollableTabsActivity extends AppCompatActivity {
+public class IconTabsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_scrollable_tabs);
+        setContentView(R.layout.activity_icon_tabs);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -44,6 +38,19 @@ public class ScrollableTabsActivity extends AppCompatActivity {
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+        setupTabIcons();
+    }
+
+    private void setupTabIcons() {
+        int[] tabIcons = {
+                R.drawable.ic_tab_favourite,
+                R.drawable.ic_tab_call,
+                R.drawable.ic_tab_contacts
+        };
+
+        tabLayout.getTabAt(0).setIcon(tabIcons[0]);
+        tabLayout.getTabAt(1).setIcon(tabIcons[1]);
+        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -51,13 +58,6 @@ public class ScrollableTabsActivity extends AppCompatActivity {
         adapter.addFrag(new OneFragment(), "ONE");
         adapter.addFrag(new TwoFragment(), "TWO");
         adapter.addFrag(new ThreeFragment(), "THREE");
-        adapter.addFrag(new FourFragment(), "FOUR");
-        adapter.addFrag(new FiveFragment(), "FIVE");
-        adapter.addFrag(new SixFragment(), "SIX");
-        adapter.addFrag(new SevenFragment(), "SEVEN");
-        adapter.addFrag(new EightFragment(), "EIGHT");
-        adapter.addFrag(new NineFragment(), "NINE");
-        adapter.addFrag(new TenFragment(), "TEN");
         viewPager.setAdapter(adapter);
     }
 
@@ -86,7 +86,9 @@ public class ScrollableTabsActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
+
+            // return null to display only the icon
+            return null;
         }
     }
 }

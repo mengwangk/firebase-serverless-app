@@ -1,4 +1,4 @@
-package info.androidhive.materialtabs;
+package com.starsystems.kyoo;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

@@ -1,4 +1,4 @@
-package info.androidhive.materialtabs.activity;
+package com.starsystems.kyoo.activity;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -8,26 +8,27 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import info.androidhive.materialtabs.R;
-import info.androidhive.materialtabs.fragments.OneFragment;
-import info.androidhive.materialtabs.fragments.ThreeFragment;
-import info.androidhive.materialtabs.fragments.TwoFragment;
+import com.starsystems.kyoo.R;
+import com.starsystems.kyoo.fragments.OneFragment;
+import com.starsystems.kyoo.fragments.ThreeFragment;
+import com.starsystems.kyoo.fragments.TwoFragment;
 
-public class IconTabsActivity extends AppCompatActivity {
+public class CustomViewIconTextTabsActivity extends AppCompatActivity {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_icon_tabs);
+        setContentView(R.layout.activity_custom_view_icon_text_tabs);
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -41,18 +42,31 @@ public class IconTabsActivity extends AppCompatActivity {
         setupTabIcons();
     }
 
+    /**
+     * Adding custom view to tab
+     */
     private void setupTabIcons() {
-        int[] tabIcons = {
-                R.drawable.ic_tab_favourite,
-                R.drawable.ic_tab_call,
-                R.drawable.ic_tab_contacts
-        };
 
-        tabLayout.getTabAt(0).setIcon(tabIcons[0]);
-        tabLayout.getTabAt(1).setIcon(tabIcons[1]);
-        tabLayout.getTabAt(2).setIcon(tabIcons[2]);
+        TextView tabOne = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
+        tabOne.setText("ONE");
+        tabOne.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_tab_favourite, 0, 0);
+        tabLayout.getTabAt(0).setCustomView(tabOne);
+
+        TextView tabTwo = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
+        tabTwo.setText("TWO");
+        tabTwo.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_tab_call, 0, 0);
+        tabLayout.getTabAt(1).setCustomView(tabTwo);
+
+        TextView tabThree = (TextView) LayoutInflater.from(this).inflate(R.layout.custom_tab, null);
+        tabThree.setText("THREE");
+        tabThree.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_tab_contacts, 0, 0);
+        tabLayout.getTabAt(2).setCustomView(tabThree);
     }
 
+    /**
+     * Adding fragments to ViewPager
+     * @param viewPager
+     */
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFrag(new OneFragment(), "ONE");
@@ -86,9 +100,7 @@ public class IconTabsActivity extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
-
-            // return null to display only the icon
-            return null;
+            return mFragmentTitleList.get(position);
         }
     }
 }

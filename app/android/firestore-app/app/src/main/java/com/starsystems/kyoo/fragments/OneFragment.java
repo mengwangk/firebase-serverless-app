@@ -1,4 +1,4 @@
-package info.androidhive.materialtabs.fragments;
+package com.starsystems.kyoo.fragments;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -6,12 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import info.androidhive.materialtabs.R;
+import com.starsystems.kyoo.R;
 
 
-public class NineFragment extends Fragment{
+public class OneFragment extends Fragment{
 
-    public NineFragment() {
+    public OneFragment() {
         // Required empty public constructor
     }
 
@@ -24,7 +24,7 @@ public class NineFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_nine, container, false);
+        return inflater.inflate(R.layout.fragment_one, container, false);
     }
 
 }
