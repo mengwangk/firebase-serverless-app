@@ -8,23 +8,24 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
+
+import com.starsystems.kyoo.AppConfig;
+import com.starsystems.kyoo.R;
+import com.starsystems.kyoo.fragment.QueueFragment;
+import com.starsystems.kyoo.model.Entity;
+import com.starsystems.kyoo.model.Queue;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.starsystems.kyoo.R;
-import com.starsystems.kyoo.fragments.EightFragment;
-import com.starsystems.kyoo.fragments.FiveFragment;
-import com.starsystems.kyoo.fragments.FourFragment;
-import com.starsystems.kyoo.fragments.NineFragment;
-import com.starsystems.kyoo.fragments.OneFragment;
-import com.starsystems.kyoo.fragments.SevenFragment;
-import com.starsystems.kyoo.fragments.SixFragment;
-import com.starsystems.kyoo.fragments.TenFragment;
-import com.starsystems.kyoo.fragments.ThreeFragment;
-import com.starsystems.kyoo.fragments.TwoFragment;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -40,30 +41,68 @@ public class MainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
+
+        loadEntity();
+        loadQueues();
     }
 
-    private void setupViewPager(ViewPager viewPager) {
+    private void setupQueues(final List<Queue> queues) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFrag(new OneFragment(), "ONE");
-        adapter.addFrag(new TwoFragment(), "TWO");
-        adapter.addFrag(new ThreeFragment(), "THREE");
-        adapter.addFrag(new FourFragment(), "FOUR");
-        adapter.addFrag(new FiveFragment(), "FIVE");
-        adapter.addFrag(new SixFragment(), "SIX");
-        adapter.addFrag(new SevenFragment(), "SEVEN");
-        adapter.addFrag(new EightFragment(), "EIGHT");
-        adapter.addFrag(new NineFragment(), "NINE");
-        adapter.addFrag(new TenFragment(), "TEN");
+        for (Queue queue : queues) {
+            adapter.addFrag(QueueFragment.newInstance(queue), queue.getName());
+        }
         viewPager.setAdapter(adapter);
     }
 
+    private void loadEntity() {
+        AppConfig.getApiService().getEntity(AppConfig.ENTITY_ID).enqueue(new Callback<Entity>() {
+            @Override
+            public void onResponse(Call<Entity> call, Response<Entity> response) {
+                if (response.isSuccessful()) {
+                    final Entity entity = response.body();
+                    final String id = entity.getId();
+                } else {
+                    int statusCode = response.code();
+                    // handle request errors depending on status code
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Entity> call, Throwable t) {
+                Log.e(TAG, "Unable to load entity", t);
+            }
+        });
+    }
+
+    private void loadQueues() {
+        AppConfig.getApiService().getQueues(AppConfig.ENTITY_ID).enqueue(new Callback<List<Queue>>() {
+            @Override
+            public void onResponse(Call<List<Queue>> call, Response<List<Queue>> response) {
+                if (response.isSuccessful()) {
+                    final List<Queue> queues = response.body();
+                    setupQueues(queues);
+                } else {
+                    int statusCode = response.code();
+                    // handle request errors depending on status code
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Queue>> call, Throwable t) {
+                // TODO - show the error
+
+                Log.e(TAG, "Unable to load queues", t);
+            }
+        });
+    }
+
+
     class ViewPagerAdapter extends FragmentPagerAdapter {
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
+        private final List<Fragment> fragments = new ArrayList<>();
+        private final List<String> fragmentTitles = new ArrayList<>();
 
         public ViewPagerAdapter(FragmentManager manager) {
             super(manager);
@@ -71,22 +110,22 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public Fragment getItem(int position) {
-            return mFragmentList.get(position);
+            return fragments.get(position);
         }
 
         @Override
         public int getCount() {
-            return mFragmentList.size();
+            return fragments.size();
         }
 
         public void addFrag(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
+            fragments.add(fragment);
+            fragmentTitles.add(title);
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
+            return fragmentTitles.get(position);
         }
     }
 }
