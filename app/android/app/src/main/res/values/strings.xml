@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Kyoo</string>
 
+    <string name="action_queue">Queue</string>
     <string name="action_settings">Settings</string>
 
     <string name="message_no_results">Oops, no bookings for this queue!</string>
@@ -10,5 +11,8 @@
     <string name="label_name">Name</string>
     <string name="label_contact_no">Contact No</string>
     <string name="label_no_of_seats">No of Seats</string>
+    <string name="open_drawer">Open Menu</string>
+    <string name="close_drawer">Close Menu</string>
+
 
 </resources>

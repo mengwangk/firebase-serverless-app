@@ -1,0 +1,18 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/menu_item_queue"
+            android:checked="false"
+            android:title="@string/action_queue" />
+
+        <item
+            android:id="@+id/menu_item_settings"
+            android:checked="false"
+            android:title="@string/action_settings" />
+
+    </group>
+</menu>

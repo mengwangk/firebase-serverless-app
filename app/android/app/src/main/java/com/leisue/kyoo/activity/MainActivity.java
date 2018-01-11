@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
@@ -16,7 +15,6 @@ import com.leisue.kyoo.R;
 import com.leisue.kyoo.fragment.QueueFragment;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.Queue;
-import com.leisue.kyoo.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,16 +25,13 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
-    private static final int RC_SIGN_IN = 9001;
+    //private static final int RC_SIGN_IN = 9001;
 
-    private MainActivityViewModel mViewModel;
+    //private MainActivityViewModel mViewModel;
 
     private static final String TAG = "MainActivity";
-
-    @BindView(R.id.toolbar)
-    Toolbar toolbar;
 
     @BindView(R.id.tabs)
     TabLayout tabLayout;
