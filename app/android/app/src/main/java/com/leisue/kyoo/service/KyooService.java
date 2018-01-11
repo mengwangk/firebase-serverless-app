@@ -1,6 +1,7 @@
 package com.leisue.kyoo.service;
 
 import com.leisue.kyoo.model.Booking;
+import com.leisue.kyoo.model.BookingRequest;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.Queue;
 
@@ -27,7 +28,6 @@ public interface KyooService {
     Call<List<Queue>> getQueues(@Path("entityId") String entityId);
 
     @POST("/queue/{entityId}/{queueId}")
-    @FormUrlEncoded
-    Call<Booking> saveBooking(@Path("entityId") String entityId, @Path("queueId") String queueId, @Field("booking") Booking booking);
+    Call<Booking> saveBooking(@Path("entityId") String entityId, @Path("queueId") String queueId, @Body BookingRequest bookingRequest);
 
 }

@@ -34,11 +34,10 @@ router.post('/:entityId/:queueId', function (req, res, next) {
     }
 
     // Get the booking and queue info from request body
-     const data = JSON.parse(req.body.booking); // booking info
-     const booking = new Booking(data.name, data.contactNo, data.noOfCustomers);
+    const data = req.body.booking;
+    const booking = new Booking(data.name, data.contactNo, data.noOfCustomers);
    
     // TODO - validate the booking data
-    
 
     let callback = (results, err = null) => {
         if (err != null) {

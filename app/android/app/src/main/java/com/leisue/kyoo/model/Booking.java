@@ -85,16 +85,5 @@ public class Booking {
         this.bookingNo = bookingNo;
     }
 
-    @Override
-    public String toString() {
-        return "Booking{" +
-            "id='" + id + '\'' +
-            ", name='" + name + '\'' +
-            ", contactNo='" + contactNo + '\'' +
-            ", noOfCustomers=" + noOfCustomers +
-            ", bookedDate=" + bookedDate +
-            ", bookingNo='" + bookingNo + '\'' +
-            '}';
-    }
 }
 

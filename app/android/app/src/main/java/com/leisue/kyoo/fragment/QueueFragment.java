@@ -23,6 +23,7 @@ import com.leisue.kyoo.R;
 import com.leisue.kyoo.activity.MainActivity;
 import com.leisue.kyoo.adapter.QueueAdapter;
 import com.leisue.kyoo.model.Booking;
+import com.leisue.kyoo.model.BookingRequest;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.Queue;
 import com.leisue.kyoo.util.FirestoreUtil;
@@ -165,7 +166,7 @@ public class QueueFragment extends Fragment implements
 
     void saveBooking(final Booking booking) {
         final Entity entity = KyooApp.getInstance(getActivity()).getEntity();
-        KyooApp.getApiService().saveBooking(entity.getId(), queue.getId(), booking).enqueue(new Callback<Booking>() {
+        KyooApp.getApiService().saveBooking(entity.getId(), queue.getId(), new BookingRequest(booking)).enqueue(new Callback<Booking>() {
             @Override
             public void onResponse(Call<Booking> call, Response<Booking> response) {
                 if (response.isSuccessful()) {
