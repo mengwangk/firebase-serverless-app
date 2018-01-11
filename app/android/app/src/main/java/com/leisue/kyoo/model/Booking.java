@@ -22,10 +22,20 @@ public class Booking {
     private Integer noOfCustomers;
     @SerializedName("bookedDate")
     @Expose
-    private Integer bookedDate;
+    private Long bookedDate;
     @SerializedName("bookingNo")
     @Expose
     private String bookingNo;
+
+
+    public Booking(){
+        this.id = "";
+        this.name = "";
+        this.contactNo = "";
+        this.noOfCustomers = 0;
+        this.bookedDate = 0l;
+        this.bookingNo = "";
+    }
 
     public String getId() {
         return id;
@@ -59,11 +69,11 @@ public class Booking {
         this.noOfCustomers = noOfCustomers;
     }
 
-    public Integer getBookedDate() {
+    public Long getBookedDate() {
         return bookedDate;
     }
 
-    public void setBookedDate(Integer bookedDate) {
+    public void setBookedDate(Long bookedDate) {
         this.bookedDate = bookedDate;
     }
 

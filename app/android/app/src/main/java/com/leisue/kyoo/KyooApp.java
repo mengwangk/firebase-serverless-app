@@ -4,11 +4,14 @@ import android.app.Application;
 import android.content.Context;
 
 import com.leisue.kyoo.model.Entity;
+import com.leisue.kyoo.service.KyooService;
+
+import static com.leisue.kyoo.KyooConfig.API_SERVER_URL;
 
 /**
  * Kyoo application.
  */
-public class KyooApp extends Application {
+public final class KyooApp extends Application {
 
     private static Context context = null;  // Global application context
 
@@ -48,5 +51,9 @@ public class KyooApp extends Application {
 
     public void setEntity(Entity entity) {
         this.entity = entity;
+    }
+
+    public static KyooService getApiService() {
+        return RetrofitClient.getClient(API_SERVER_URL).create(KyooService.class);
     }
 }

@@ -12,7 +12,7 @@
         style="@style/AppTheme.Header"
         android:layout_width="60dp"
         android:layout_height="60dp"
-        android:background="#757575"
+        android:background="#FFA500"
         android:ellipsize="end"
         android:maxLines="1"
         tools:text="Booking id" />
@@ -31,6 +31,14 @@
         android:maxLines="1"
         tools:text="Booking name" />
 
-
+    <TextView
+        android:id="@+id/booking_contact_no"
+        style="@style/AppTheme.Caption"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/booking_name"
+        android:layout_below="@+id/booking_name"
+        android:textColor="@color/greyDisabled"
+        tools:text="Contact no" />
 
 </RelativeLayout>

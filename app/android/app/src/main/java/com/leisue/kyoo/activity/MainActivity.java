@@ -21,6 +21,8 @@ import com.leisue.kyoo.viewmodel.MainActivityViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,26 +35,26 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
-    private Toolbar toolbar;
-    private TabLayout tabLayout;
-    private ViewPager viewPager;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+
+    @BindView(R.id.tabs)
+    TabLayout tabLayout;
+
+    @BindView(R.id.viewpager)
+    ViewPager viewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
 
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        viewPager = (ViewPager) findViewById(R.id.viewpager);
-
-        tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(viewPager);
 
         loadEntity();
-        loadQueues();
     }
 
     private void setupQueues(final List<Queue> queues) {
@@ -64,11 +66,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void loadEntity() {
-        KyooConfig.getApiService().getEntity(KyooConfig.ENTITY_ID).enqueue(new Callback<Entity>() {
+        KyooApp.getApiService().getEntity(KyooConfig.ENTITY_ID).enqueue(new Callback<Entity>() {
             @Override
             public void onResponse(Call<Entity> call, Response<Entity> response) {
                 if (response.isSuccessful()) {
-                    KyooApp.getInstance(MainActivity.this).setEntity(response.body());  // Set the returned entity into global application context
+                    final Entity entity = response.body();
+                    KyooApp.getInstance(MainActivity.this).setEntity(entity);  // Set the returned entity into global application context
+                    loadQueues(entity);
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
@@ -84,8 +88,8 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void loadQueues() {
-        KyooConfig.getApiService().getQueues(KyooConfig.ENTITY_ID).enqueue(new Callback<List<Queue>>() {
+    private void loadQueues(final Entity entity) {
+        KyooApp.getApiService().getQueues(entity.getId()).enqueue(new Callback<List<Queue>>() {
             @Override
             public void onResponse(Call<List<Queue>> call, Response<List<Queue>> response) {
                 if (response.isSuccessful()) {

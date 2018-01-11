@@ -10,6 +10,8 @@ import java.io.Serializable;
  */
 public class Queue implements Serializable {
 
+    public static final String FIELD_BOOKED_DATE = "bookedDate";
+
     @SerializedName("id")
     @Expose
     private String id;

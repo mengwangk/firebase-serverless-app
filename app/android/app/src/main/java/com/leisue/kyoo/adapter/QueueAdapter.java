@@ -54,6 +54,8 @@ public class QueueAdapter extends FirestoreAdapter<QueueAdapter.ViewHolder> {
         @BindView(R.id.booking_name)
         TextView bookingNameView;
 
+        @BindView(R.id.booking_contact_no)
+        TextView bookingContactNoView;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -67,6 +69,7 @@ public class QueueAdapter extends FirestoreAdapter<QueueAdapter.ViewHolder> {
 
             bookingNoView.setText(booking.getBookingNo());
             bookingNameView.setText(booking.getName());
+            bookingContactNoView.setText(booking.getContactNo());
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {

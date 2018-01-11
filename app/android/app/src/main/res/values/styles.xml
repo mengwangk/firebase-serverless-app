@@ -12,6 +12,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="AppTheme.Title">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
     <style name="AppTheme.Header">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">18sp</item>
@@ -22,9 +27,18 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <style name="AppTheme.Caption">
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
     <style name="AppTheme.Body1">
         <item name="android:fontFamily">sans-serif</item>
         <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="ThemeOverlay.BookingButton" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="colorButtonNormal">@color/colorPrimary</item>
     </style>
 
 
