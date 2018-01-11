@@ -158,8 +158,10 @@ public class QueueFragment extends Fragment implements
     public void onBooking(Booking booking) {
         Log.i(TAG, "Booking received");
 
-        if (TextUtils.isEmpty(booking.getContactNo()) || booking.getNoOfCustomers() <= 0)
+        if (TextUtils.isEmpty(booking.getContactNo()) || booking.getNoOfCustomers() <= 0) {
             Snackbar.make(getActivity().findViewById(android.R.id.content), "Invalid booking info.", Snackbar.LENGTH_LONG).show();
+            return;
+        }
 
         saveBooking(booking);
     }
