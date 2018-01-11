@@ -10,11 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.KyooConfig;
 import com.leisue.kyoo.R;
 import com.leisue.kyoo.fragment.QueueFragment;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.Queue;
+import com.leisue.kyoo.viewmodel.MainActivityViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+
+    private static final int RC_SIGN_IN = 9001;
+
+    private MainActivityViewModel mViewModel;
 
     private static final String TAG = "MainActivity";
 
@@ -62,16 +68,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Entity> call, Response<Entity> response) {
                 if (response.isSuccessful()) {
-                    final Entity entity = response.body();
-                    final String id = entity.getId();
+                    KyooApp.getInstance(MainActivity.this).setEntity(response.body());  // Set the returned entity into global application context
                 } else {
-                    int statusCode = response.code();
                     // handle request errors depending on status code
+                    int statusCode = response.code();
                 }
             }
 
             @Override
             public void onFailure(Call<Entity> call, Throwable t) {
+                // TODO - show the error
+
                 Log.e(TAG, "Unable to load entity", t);
             }
         });
@@ -85,8 +92,8 @@ public class MainActivity extends AppCompatActivity {
                     final List<Queue> queues = response.body();
                     setupQueues(queues);
                 } else {
-                    int statusCode = response.code();
                     // handle request errors depending on status code
+                    int statusCode = response.code();
                 }
             }
 
@@ -104,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         private final List<Fragment> fragments = new ArrayList<>();
         private final List<String> fragmentTitles = new ArrayList<>();
 
-        public ViewPagerAdapter(FragmentManager manager) {
+        ViewPagerAdapter(FragmentManager manager) {
             super(manager);
         }
 
@@ -118,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
             return fragments.size();
         }
 
-        public void addFrag(Fragment fragment, String title) {
+        void addFrag(Fragment fragment, String title) {
             fragments.add(fragment);
             fragmentTitles.add(title);
         }

@@ -22,8 +22,7 @@ public interface KyooService {
     @GET("/entity/{entityId}/queue")
     Call<List<Queue>> getQueues(@Path("entityId") String entityId);
 
-
     @GET("/queue/{entityId}/{queueId}")
-    Call<List<Booking>> getBooking(@Path("entityId") String entityId, @Path("queueId") String queueId);
+    Call<List<Booking>> getBookings(@Path("entityId") String entityId, @Path("queueId") String queueId);
 
 }

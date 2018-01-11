@@ -59,14 +59,13 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:1.0.0"
 
     // Third-party libraries
-    compile 'me.zhanghai.android.materialratingbar:library:1.0.2'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.karumi:dexter:4.2.0'
     compile 'com.google.code.gson:gson:2.8.2'
     compile 'com.squareup.retrofit2:retrofit:2.3.0'
     compile 'com.squareup.retrofit2:converter-gson:2.3.0'
     compile 'org.greenrobot:eventbus:3.1.1'
-    compile 'org.greenrobot:greendao:3.2.2' // add library
+    compile 'org.greenrobot:greendao:3.2.2'
 }
 
 apply plugin: 'com.google.gms.google-services'

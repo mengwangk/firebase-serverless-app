@@ -1,5 +1,6 @@
 package com.leisue.kyoo;
 
+import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.service.KyooService;
 
 /**
