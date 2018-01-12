@@ -1,6 +1,5 @@
 package com.leisue.kyoo.fragment;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -14,13 +13,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.leisue.kyoo.KyooApp;
-import com.leisue.kyoo.KyooConfig;
 import com.leisue.kyoo.R;
-import com.leisue.kyoo.activity.MainActivity;
 import com.leisue.kyoo.adapter.QueueAdapter;
 import com.leisue.kyoo.model.Booking;
 import com.leisue.kyoo.model.BookingRequest;
@@ -41,7 +37,7 @@ public class QueueFragment extends Fragment implements
 
     private static final String TAG = "QueueFragment";
 
-    private static final String QUEUE_BUNDLE_KEY = "queue";
+    private static final String QUEUE_BUNDLE_KEY = "mQueue";
 
     @BindView(R.id.recycler_bookings)
     RecyclerView mBookingsRecycler;
@@ -64,7 +60,7 @@ public class QueueFragment extends Fragment implements
         return queueFragment;
     }
 
-    private Queue queue;
+    private Queue mQueue;
 
     public QueueFragment() {
         // Required empty public constructor
@@ -73,8 +69,8 @@ public class QueueFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.queue = (Queue) getArguments().getSerializable(QUEUE_BUNDLE_KEY);
-        mQuery = FirestoreUtil.getBookings(this.queue);
+        this.mQueue = (Queue) getArguments().getSerializable(QUEUE_BUNDLE_KEY);
+        mQuery = FirestoreUtil.getBookings(this.mQueue);
     }
 
     @Override
@@ -89,7 +85,7 @@ public class QueueFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
         // RecyclerView
-        mAdapter = new QueueAdapter(mQuery, this) {
+        mAdapter = new QueueAdapter(mQueue, mQuery, this) {
             @Override
             protected void onDataChanged() {
                 // Show/hide content if the query returns empty.
@@ -144,8 +140,9 @@ public class QueueFragment extends Fragment implements
     }
 
     @Override
-    public void onBookingSelected(DocumentSnapshot restaurant) {
+    public void onBookingSelected(Booking booking) {
         // A booking is selected
+        Snackbar.make(getActivity().findViewById(android.R.id.content), "Book", Snackbar.LENGTH_LONG).show();
     }
 
     @OnClick(R.id.button_add_booking)
@@ -166,9 +163,10 @@ public class QueueFragment extends Fragment implements
         saveBooking(booking);
     }
 
+
     void saveBooking(final Booking booking) {
         final Entity entity = KyooApp.getInstance(getActivity()).getEntity();
-        KyooApp.getApiService().saveBooking(entity.getId(), queue.getId(), new BookingRequest(booking)).enqueue(new Callback<Booking>() {
+        KyooApp.getApiService().saveBooking(entity.getId(), mQueue.getId(), new BookingRequest(booking)).enqueue(new Callback<Booking>() {
             @Override
             public void onResponse(Call<Booking> call, Response<Booking> response) {
                 if (response.isSuccessful()) {

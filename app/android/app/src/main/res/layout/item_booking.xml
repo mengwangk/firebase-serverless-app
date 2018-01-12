@@ -26,6 +26,7 @@
         android:layout_marginBottom="4dp"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="-2dp"
+        android:layout_toLeftOf="@+id/button_delete"
         android:layout_toRightOf="@+id/booking_no"
         android:ellipsize="end"
         android:maxLines="1"
@@ -41,4 +42,15 @@
         android:textColor="@color/greyDisabled"
         tools:text="Contact no" />
 
+    <ImageButton
+        android:id="@+id/button_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="5dp"
+        android:gravity="right"
+        android:src="@android:drawable/ic_menu_delete"
+        />
 </RelativeLayout>

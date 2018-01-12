@@ -45,8 +45,17 @@ public class MainActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         tabLayout.setupWithViewPager(viewPager);
+    }
 
-        loadEntity();
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (isSignedIn()) {
+            // Already signed in, load the entity and its queues
+            loadEntity();
+        }
     }
 
     private void setupQueues(final List<Queue> queues) {
