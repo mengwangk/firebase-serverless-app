@@ -37,7 +37,7 @@
         <item name="android:textSize">14sp</item>
     </style>
 
-    <style name="ThemeOverlay.BookingButton" parent="ThemeOverlay.AppCompat.Dark">
+    <style name="ThemeOverlay.ApplyButton" parent="ThemeOverlay.AppCompat.Dark">
         <item name="colorButtonNormal">@color/colorPrimary</item>
     </style>
 

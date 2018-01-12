@@ -3,10 +3,12 @@ package com.leisue.kyoo.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
  * POJO for entity
  */
+@org.greenrobot.greendao.annotation.Entity
 public class Entity {
 
     @SerializedName("id")
@@ -18,6 +20,17 @@ public class Entity {
     @SerializedName("name")
     @Expose
     private String name;
+
+    @Generated(hash = 2029014802)
+    public Entity(String id, String email, String name) {
+        this.id = id;
+        this.email = email;
+        this.name = name;
+    }
+
+    @Generated(hash = 1559012531)
+    public Entity() {
+    }
 
     public String getId() {
         return id;

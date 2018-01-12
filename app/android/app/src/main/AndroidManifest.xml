@@ -21,6 +21,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="com.leisue.kyoo.activity.SettingsActivity"></activity>
+
     </application>
 
 </manifest>

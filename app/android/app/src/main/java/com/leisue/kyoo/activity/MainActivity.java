@@ -1,12 +1,13 @@
 package com.leisue.kyoo.activity;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
 import com.leisue.kyoo.KyooApp;
@@ -26,10 +27,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends BaseActivity {
-
-    //private static final int RC_SIGN_IN = 9001;
-
-    //private MainActivityViewModel mViewModel;
 
     private static final String TAG = "MainActivity";
 
@@ -67,18 +64,19 @@ public class MainActivity extends BaseActivity {
                 if (response.isSuccessful()) {
                     final Entity entity = response.body();
                     KyooApp.getInstance(MainActivity.this).setEntity(entity);  // Set the returned entity into global application context
+                    setHeaderView();
                     loadQueues(entity);
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
+                    Snackbar.make(findViewById(android.R.id.content), "Unable to load entity. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Entity> call, Throwable t) {
-                // TODO - show the error
-
                 Log.e(TAG, "Unable to load entity", t);
+                Snackbar.make(findViewById(android.R.id.content), "Unable to load entity", Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -93,18 +91,25 @@ public class MainActivity extends BaseActivity {
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
+                    Snackbar.make(findViewById(android.R.id.content), "Unable to load queue. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Queue>> call, Throwable t) {
-                // TODO - show the error
-
                 Log.e(TAG, "Unable to load queues", t);
+                Snackbar.make(findViewById(android.R.id.content), "Unable to load queues", Snackbar.LENGTH_LONG).show();
             }
         });
     }
 
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+        // Highlight the menu item
+        navigationView.setCheckedItem(R.id.menu_item_queue);
+    }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private final List<Fragment> fragments = new ArrayList<>();

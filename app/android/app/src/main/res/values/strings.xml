@@ -8,9 +8,12 @@
     <string name="header_booking">Booking</string>
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
+    <string name="apply">Apply</string>
     <string name="label_name">Name</string>
     <string name="label_contact_no">Contact No</string>
     <string name="label_no_of_seats">No of Seats</string>
+    <string name="label_entity_id">Id</string>
+    <string name="label_email">Email</string>
     <string name="open_drawer">Open Menu</string>
     <string name="close_drawer">Close Menu</string>
 

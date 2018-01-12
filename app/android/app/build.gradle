@@ -28,6 +28,10 @@ android {
     }
 }
 
+greendao {
+    schemaVersion 1000
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 

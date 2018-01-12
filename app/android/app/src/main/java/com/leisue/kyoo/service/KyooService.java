@@ -9,8 +9,7 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
-import retrofit2.http.Field;
-import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -29,5 +28,8 @@ public interface KyooService {
 
     @POST("/queue/{entityId}/{queueId}")
     Call<Booking> saveBooking(@Path("entityId") String entityId, @Path("queueId") String queueId, @Body BookingRequest bookingRequest);
+
+    @DELETE("/queue/{entityId}/{queueId}/{bookingId}")
+    Call<Booking> deleteBooking(@Path("entityId") String entityId, @Path("queueId") String queueId,  @Path("bookingId") String bookingId);
 
 }

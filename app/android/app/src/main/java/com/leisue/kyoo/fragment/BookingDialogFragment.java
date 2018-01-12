@@ -56,12 +56,6 @@ public class BookingDialogFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
-        /*
-        if (context instanceof BookingListener) {
-            mBookingListener = (BookingListener) context;
-        }
-        */
     }
 
     @Override
