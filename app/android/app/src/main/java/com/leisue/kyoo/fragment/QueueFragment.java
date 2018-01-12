@@ -48,6 +48,9 @@ public class QueueFragment extends Fragment implements
     @BindView(R.id.button_add_booking)
     FloatingActionButton mAddBookingButton;
 
+    @BindView(R.id.button_clear_queue)
+    FloatingActionButton mClearQueueButton;
+
     private Query mQuery;
     private QueueAdapter mAdapter;
     private BookingDialogFragment mBookingDialog;
@@ -151,6 +154,32 @@ public class QueueFragment extends Fragment implements
         mBookingDialog.show(getChildFragmentManager(), BookingDialogFragment.TAG);
     }
 
+
+    @OnClick(R.id.button_clear_queue)
+    public void onClearQueueClicked(View view) {
+        Log.i(TAG, "Clear the queue");
+        final Entity entity = KyooApp.getInstance(getActivity()).getEntity();
+        KyooApp.getApiService().clearQueue(entity.getId(), mQueue.getId()).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful()) {
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), "Queue cleared.", Snackbar.LENGTH_LONG).show();
+                } else {
+                    // handle request errors depending on status code
+                    int statusCode = response.code();
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), "Unable to clear queue. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Log.e(TAG, "Unable to clear queue", t);
+                Snackbar.make(getActivity().findViewById(android.R.id.content), "Unable to clear queue.", Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
+
     @Override
     public void onBooking(Booking booking) {
         Log.i(TAG, "Booking received");
@@ -181,7 +210,7 @@ public class QueueFragment extends Fragment implements
 
             @Override
             public void onFailure(Call<Booking> call, Throwable t) {
-                Log.e(TAG, "Unable to load entity", t);
+                Log.e(TAG, "Unable to save booking", t);
                 Snackbar.make(getActivity().findViewById(android.R.id.content), "Unable to add booking. Contact the support.", Snackbar.LENGTH_LONG).show();
             }
         });

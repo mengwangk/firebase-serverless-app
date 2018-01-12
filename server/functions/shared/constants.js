@@ -43,3 +43,5 @@ define("QueueCollection", QUEUE_COLLECTION);
 define("ServerError", "Server error");
 define("InvalidData", "Invalid input");
 define("NoRecordFound", "No record found");
+define("BatchQueueDelete", "Queue deletion request submitted");
+define("BookingDeleted", "Booking deleted");

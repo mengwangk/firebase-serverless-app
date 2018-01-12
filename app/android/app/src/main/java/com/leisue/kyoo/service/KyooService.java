@@ -32,4 +32,7 @@ public interface KyooService {
     @DELETE("/queue/{entityId}/{queueId}/{bookingId}")
     Call<String> deleteBooking(@Path("entityId") String entityId, @Path("queueId") String queueId,  @Path("bookingId") String bookingId);
 
+    @DELETE("/queue/{entityId}/{queueId}")
+    Call<String> clearQueue(@Path("entityId") String entityId, @Path("queueId") String queueId);
+
 }

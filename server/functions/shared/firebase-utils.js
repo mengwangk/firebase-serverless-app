@@ -25,6 +25,45 @@ const FireStore = (function() {
         });
     }
 
+    const deleteCol = function(colRef, batchSize = 100) {
+        var query = colRef.limit(batchSize);
+        return new Promise((resolve, reject) => {
+            deleteBatch(firebase.firestore(), query, batchSize, resolve, reject);
+        });
+    }
+    
+    const deleteBatch = function (db, query, batchSize, resolve, reject) {
+        query.get()
+            .then((snapshot) => {
+                // When there are no documents left, we are done
+                if (snapshot.size == 0) {
+                    return 0;
+                }
+    
+                // Delete documents in a batch
+                var batch = db.batch();
+                snapshot.docs.forEach((doc) => {
+                    batch.delete(doc.ref);
+                });
+    
+                return batch.commit().then(() => {
+                    return snapshot.size;
+                });
+            }).then((numDeleted) => {
+                if (numDeleted === 0) {
+                    resolve();
+                    return;
+                }
+    
+                // Recurse on the next process tick, to avoid
+                // exploding the stack.
+                process.nextTick(() => {
+                    deleteBatch(db, query, batchSize, resolve, reject);
+                });
+            })
+            .catch(reject);
+    }
+
     const getCollection = function(docRef, callback) {
         docRef.get()
             .then((snapshot) => {
@@ -133,6 +172,11 @@ const FireStore = (function() {
             .catch (err=> {
                 callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err));
             });
+    }
+
+    self.clearQueue = function(entityId, queueId) {
+        var colRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId);
+        deleteCol(colRef);
     }
 
     return self;

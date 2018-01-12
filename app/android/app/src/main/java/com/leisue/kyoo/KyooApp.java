@@ -3,13 +3,8 @@ package com.leisue.kyoo;
 import android.app.Application;
 import android.content.Context;
 
-import com.leisue.kyoo.model.DaoMaster;
-import com.leisue.kyoo.model.DaoSession;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.service.KyooService;
-
-import org.greenrobot.greendao.database.Database;
-import org.greenrobot.greendao.database.DatabaseOpenHelper;
 
 import static com.leisue.kyoo.KyooConfig.API_SERVER_URL;
 
@@ -22,7 +17,7 @@ public final class KyooApp extends Application {
 
     private Entity entity = null;
 
-    private DaoSession daoSession;
+    //private DaoSession daoSession;
 
     public static KyooApp getInstance(Context context) {
         return (KyooApp) context.getApplicationContext();
@@ -51,9 +46,9 @@ public final class KyooApp extends Application {
         if (context == null)
             context = this.getApplicationContext();
 
-        DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, KyooConfig.DATBASE_NAME);
-        Database db = helper.getWritableDb();
-        daoSession = new DaoMaster(db).newSession();
+        //DaoMaster.DevOpenHelper helper = new DaoMaster.DevOpenHelper(this, KyooConfig.DATBASE_NAME);
+        //Database db = helper.getWritableDb();
+        //daoSession = new DaoMaster(db).newSession();
     }
 
     public Entity getEntity() {
@@ -64,9 +59,9 @@ public final class KyooApp extends Application {
         this.entity = entity;
     }
 
-    public DaoSession getDaoSession() {
-        return daoSession;
-    }
+    //public DaoSession getDaoSession() {
+    //    return daoSession;
+    //}
 
     public static KyooService getApiService() {
         return RetrofitClient.getClient(API_SERVER_URL).create(KyooService.class);

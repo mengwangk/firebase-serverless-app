@@ -54,17 +54,9 @@ router.delete('/:entityId/:queueId', function (req, res, next) {
     const entityId = req.params.entityId;   // entity id
     const queueId = req.params.queueId;     // queue id
 
-    let callback = (results = "", err = null) => {
-        if (err != null) {
-            res.status(err.statusCode).json(err);
-        } else {
-            res.status(HttpStatus.NO_CONTENT).json(results);
-        }
-    };
-
-    // Delete all bookings - TODO
-    // https://firebase.google.com/docs/firestore/manage-data/delete-data
-
+    // Delete all bookings
+    FirebaseUtils.fireStore.clearQueue(entityId, queueId);
+    res.status(HttpStatus.ACCEPTED).json(constants.BatchQueueDelete);
 });
 
 // Delete a booking
@@ -77,7 +69,7 @@ router.delete('/:entityId/:queueId/:bookingId', function (req, res, next) {
         if (err != null) {
             res.status(err.statusCode).json(err);
         } else {
-            res.status(HttpStatus.NO_CONTENT).json(results);
+            res.status(HttpStatus.NO_CONTENT).json(constants.BookingDeleted);
         }
     };
 
