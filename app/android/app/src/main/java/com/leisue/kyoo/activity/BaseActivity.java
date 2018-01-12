@@ -168,6 +168,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             .setAvailableProviders(Collections.singletonList(
                 new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()))
             .setIsSmartLockEnabled(false)
+            .setTheme(R.style.AppTheme)
             .build();
 
         startActivityForResult(intent, RC_SIGN_IN);

@@ -9,7 +9,10 @@
         <item name="windowActionBar">false</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">#65a6ff</item>
+        <item name="android:textAppearanceButton">@style/TextAppearance.AppCompat.Button.Custom</item>
+        <item name="android:buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
+        <item name="buttonStyle">@style/Widget.AppCompat.Button.Colored</item>
     </style>
 
     <style name="AppTheme.Title">
@@ -41,5 +44,8 @@
         <item name="colorButtonNormal">@color/colorPrimary</item>
     </style>
 
+    <style name="TextAppearance.AppCompat.Button.Custom">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
 
 </resources>

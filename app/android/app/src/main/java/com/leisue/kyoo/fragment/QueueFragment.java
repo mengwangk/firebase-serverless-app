@@ -1,10 +1,12 @@
 package com.leisue.kyoo.fragment;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -157,13 +159,34 @@ public class QueueFragment extends Fragment implements
 
     @OnClick(R.id.button_clear_queue)
     public void onClearQueueClicked(View view) {
-        Log.i(TAG, "Clear the queue");
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int choice) {
+                switch (choice) {
+                    case DialogInterface.BUTTON_POSITIVE:
+                        clearQueue();
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE:
+                        break;
+                }
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(R.string.message_clear_queue)
+            .setPositiveButton(R.string.yes, dialogClickListener)
+            .setNegativeButton(R.string.no, dialogClickListener).show();
+
+    }
+
+    void clearQueue(){
         final Entity entity = KyooApp.getInstance(getActivity()).getEntity();
         KyooApp.getApiService().clearQueue(entity.getId(), mQueue.getId()).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful()) {
-                    Snackbar.make(getActivity().findViewById(android.R.id.content), "Queue cleared.", Snackbar.LENGTH_LONG).show();
+                    //Snackbar.make(getActivity().findViewById(android.R.id.content), "Queue cleared.", Snackbar.LENGTH_LONG).show();
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
@@ -178,7 +201,6 @@ public class QueueFragment extends Fragment implements
             }
         });
     }
-
 
     @Override
     public void onBooking(Booking booking) {
