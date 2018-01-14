@@ -64,7 +64,7 @@ const FireStore = (function() {
             .catch(reject);
     }
 
-    const getCollection = function(docRef, callback) {
+    const getCol = function(docRef, callback) {
         docRef.get()
             .then((snapshot) => {
                 var docList = [];
@@ -137,7 +137,7 @@ const FireStore = (function() {
             getDoc(docRef, callback);
         } else {
             docRef = firebase.firestore().collection(constants.EntityCollection); 
-            getCollection(docRef, callback);
+            getCol(docRef, callback);
         }  
     }
 
@@ -148,14 +148,14 @@ const FireStore = (function() {
             getDoc(docRef, callback);
         } else {
             docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection); 
-            getCollection(docRef, callback);
+            getCol(docRef, callback);
         }  
     }
 
     self.getBookings = function(callback, entityId, queueId){
         var docRef = null;
         docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId); 
-        getCollection(docRef, callback);
+        getCol(docRef, callback);
     }
 
     self.deleteBooking = function(callback, entityId, queueId, bookingId) {
