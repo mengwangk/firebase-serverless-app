@@ -85,5 +85,45 @@ public class Booking {
         this.bookingNo = bookingNo;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Booking booking = (Booking) o;
+
+        if (id != null ? !id.equals(booking.id) : booking.id != null) return false;
+        if (name != null ? !name.equals(booking.name) : booking.name != null) return false;
+        if (contactNo != null ? !contactNo.equals(booking.contactNo) : booking.contactNo != null)
+            return false;
+        if (noOfCustomers != null ? !noOfCustomers.equals(booking.noOfCustomers) : booking.noOfCustomers != null)
+            return false;
+        if (bookedDate != null ? !bookedDate.equals(booking.bookedDate) : booking.bookedDate != null)
+            return false;
+        return bookingNo != null ? bookingNo.equals(booking.bookingNo) : booking.bookingNo == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
+        result = 31 * result + (contactNo != null ? contactNo.hashCode() : 0);
+        result = 31 * result + (noOfCustomers != null ? noOfCustomers.hashCode() : 0);
+        result = 31 * result + (bookedDate != null ? bookedDate.hashCode() : 0);
+        result = 31 * result + (bookingNo != null ? bookingNo.hashCode() : 0);
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Booking{" +
+            "id='" + id + '\'' +
+            ", name='" + name + '\'' +
+            ", contactNo='" + contactNo + '\'' +
+            ", noOfCustomers=" + noOfCustomers +
+            ", bookedDate=" + bookedDate +
+            ", bookingNo='" + bookingNo + '\'' +
+            '}';
+    }
 }
 
