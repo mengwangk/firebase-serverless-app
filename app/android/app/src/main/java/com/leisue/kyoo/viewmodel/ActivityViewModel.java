@@ -7,18 +7,18 @@ import android.arch.lifecycle.ViewModel;
  */
 
 public class ActivityViewModel extends ViewModel {
-    private boolean mIsSigningIn;
+    private boolean isSigningIn;
 
     public ActivityViewModel() {
-        mIsSigningIn = false;
+        isSigningIn = false;
     }
 
     public boolean getIsSigningIn() {
-        return mIsSigningIn;
+        return isSigningIn;
     }
 
-    public void setIsSigningIn(boolean mIsSigningIn) {
-        this.mIsSigningIn = mIsSigningIn;
+    public void setIsSigningIn(boolean isSigningIn) {
+        this.isSigningIn = isSigningIn;
     }
 
 }
