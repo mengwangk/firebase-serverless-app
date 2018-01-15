@@ -78,14 +78,14 @@ public class MainActivity extends BaseActivity {
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
-                    Snackbar.make(findViewById(android.R.id.content), "Unable to load entity. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content),  getString(R.string.message_entity_load_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Entity> call, Throwable t) {
                 Log.e(TAG, "Unable to load entity", t);
-                Snackbar.make(findViewById(android.R.id.content), "Unable to load entity", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_load_error, Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -100,14 +100,14 @@ public class MainActivity extends BaseActivity {
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
-                    Snackbar.make(findViewById(android.R.id.content), "Unable to load queue. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content),  getString(R.string.message_queue_load_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<Queue>> call, Throwable t) {
                 Log.e(TAG, "Unable to load queues", t);
-                Snackbar.make(findViewById(android.R.id.content), "Unable to load queues", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(android.R.id.content), R.string.message_queue_load_error, Snackbar.LENGTH_LONG).show();
             }
         });
     }

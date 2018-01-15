@@ -109,7 +109,7 @@ public class BookingQueueFragment extends Fragment implements
             @Override
             public void onError(FirebaseFirestoreException e) {
                 // Show a snackbar on errors
-                Snackbar.make(getActivity().findViewById(android.R.id.content), "Error: check logs for info.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.message_load_queue_error , Snackbar.LENGTH_LONG).show();
             }
         };
 
@@ -179,18 +179,18 @@ public class BookingQueueFragment extends Fragment implements
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful()) {
-                    //Snackbar.make(getActivity().findViewById(android.R.id.content), "Queue cleared.", Snackbar.LENGTH_LONG).show();
+                    // Queue is cleared
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
-                    Snackbar.make(getActivity().findViewById(android.R.id.content), "Unable to clear queue. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), getActivity().getString(R.string.message_queue_clear_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<String> call, Throwable t) {
                 Log.e(TAG, "Unable to clear queue", t);
-                Snackbar.make(getActivity().findViewById(android.R.id.content), "Unable to clear queue.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.message_queue_clear_error, Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -200,7 +200,7 @@ public class BookingQueueFragment extends Fragment implements
         Log.i(TAG, "Booking received");
 
         if (TextUtils.isEmpty(booking.getContactNo()) || booking.getNoOfCustomers() <= 0) {
-            Snackbar.make(getActivity().findViewById(android.R.id.content), "Invalid booking info.", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.message_invalid_booking_info, Snackbar.LENGTH_LONG).show();
             return;
         }
 
@@ -215,18 +215,18 @@ public class BookingQueueFragment extends Fragment implements
             public void onResponse(Call<Booking> call, Response<Booking> response) {
                 if (response.isSuccessful()) {
                     final Booking booking = response.body();
-                    Snackbar.make(getActivity().findViewById(android.R.id.content), "Booking added successfully.", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.message_booking_added, Snackbar.LENGTH_LONG).show();
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
-                    Snackbar.make(getActivity().findViewById(android.R.id.content), "Unable to add booking. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(getActivity().findViewById(android.R.id.content), getActivity().getString(R.string.message_booking_add_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Booking> call, Throwable t) {
                 Log.e(TAG, "Unable to save booking", t);
-                Snackbar.make(getActivity().findViewById(android.R.id.content), "Unable to add booking. Contact the support.", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.message_booking_add_error, Snackbar.LENGTH_LONG).show();
             }
         });
     }

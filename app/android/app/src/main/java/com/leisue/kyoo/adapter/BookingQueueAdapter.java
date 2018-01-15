@@ -1,11 +1,9 @@
 package com.leisue.kyoo.adapter;
 
-import android.app.Activity;
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -115,13 +113,13 @@ public class BookingQueueAdapter extends FirestoreRecyclerAdapter<Booking, Booki
                             } else {
                                 // handle request errors depending on status code
                                 int statusCode = response.code();
-                                Snackbar.make(view.getRootView().findViewById(android.R.id.content), "Unable to delete booking. Status code is " + statusCode, Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(view.getRootView().findViewById(android.R.id.content), KyooApp.getContext().getString(R.string.message_booking_delete_status_code, statusCode) , Snackbar.LENGTH_LONG).show();
                             }
                         }
 
                         @Override
                         public void onFailure(Call<String> call, Throwable t) {
-                            Snackbar.make(view.getRootView().findViewById(android.R.id.content), "Unable to delete booking.", Snackbar.LENGTH_LONG).show();
+                            Snackbar.make(view.getRootView().findViewById(android.R.id.content), R.string.message_booking_delete_error, Snackbar.LENGTH_LONG).show();
                         }
                     });
                 }

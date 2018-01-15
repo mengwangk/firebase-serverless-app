@@ -23,5 +23,18 @@
     <string name="message_no_results">Oops, no bookings for this queue!</string>
     <string name="message_clear_queue">Clear this queue?</string>
     <string name="message_booking_deleted">Booking deleted</string>
+    <string name="message_booking_delete_error">Unable to delete booking</string>
+    <string name="message_booking_delete_status_code">Unable to delete booking. Status code is %1$d</string>
+    <string name="message_queue_clear_status_code">Unable to clear queue. Status code is %1$d</string>
+    <string name="message_queue_clear_error">Unable to clear queue</string>
+    <string name="message_load_queue_error">Error loading queues</string>
+    <string name="message_invalid_booking_info">Invalid booking info</string>
+    <string name="message_booking_added">Booking added successfully</string>
+    <string name="message_booking_add_status_code">Unable to add booking. Status code is %1$d</string>
+    <string name="message_booking_add_error">Unable to add booking. Please try again</string>
+    <string name="message_entity_load_status_code">Unable to load entity. Status code is %1$d</string>
+    <string name="message_queue_load_status_code">Unable to load queue. Status code is %1$d</string>
+    <string name="message_entity_load_error">Unable to load entity</string>
+    <string name="message_queue_load_error">Unable to load queues</string>
 
 </resources>
