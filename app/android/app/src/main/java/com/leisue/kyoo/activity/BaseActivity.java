@@ -46,7 +46,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @BindView(R.id.drawer)
     DrawerLayout drawerLayout;
 
-    ActivityViewModel mViewModel;
+    ActivityViewModel viewModel;
 
     private static final int RC_SIGN_IN = 9001;
 
@@ -56,7 +56,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         // View model
-        mViewModel = ViewModelProviders.of(this).get(ActivityViewModel.class);
+        viewModel = ViewModelProviders.of(this).get(ActivityViewModel.class);
     }
 
     @Override
@@ -124,7 +124,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN) {
-            mViewModel.setIsSigningIn(false);
+            viewModel.setIsSigningIn(false);
 
             if (resultCode != RESULT_OK && shouldStartSignIn()) {
                 startSignIn();
@@ -155,7 +155,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     protected boolean shouldStartSignIn() {
-        return (!mViewModel.getIsSigningIn() && FirebaseAuth.getInstance().getCurrentUser() == null);
+        return (!viewModel.getIsSigningIn() && FirebaseAuth.getInstance().getCurrentUser() == null);
     }
 
     protected boolean isSignedIn(){
@@ -172,7 +172,7 @@ public abstract class BaseActivity extends AppCompatActivity {
             .build();
 
         startActivityForResult(intent, RC_SIGN_IN);
-        mViewModel.setIsSigningIn(true);
+        viewModel.setIsSigningIn(true);
     }
 
     protected void onUserSignedIn() {

@@ -39,23 +39,23 @@ public class QueueFragment extends Fragment implements
 
     private static final String TAG = "QueueFragment";
 
-    private static final String QUEUE_BUNDLE_KEY = "mQueue";
+    private static final String QUEUE_BUNDLE_KEY = "queue";
 
     @BindView(R.id.recycler_bookings)
-    RecyclerView mBookingsRecycler;
+    RecyclerView bookingsRecycler;
 
     @BindView(R.id.view_empty)
-    ViewGroup mEmptyView;
+    ViewGroup emptyView;
 
     @BindView(R.id.button_add_booking)
-    FloatingActionButton mAddBookingButton;
+    FloatingActionButton addBookingButton;
 
     @BindView(R.id.button_clear_queue)
-    FloatingActionButton mClearQueueButton;
+    FloatingActionButton clearQueueButton;
 
-    private Query mQuery;
-    private QueueAdapter mAdapter;
-    private BookingDialogFragment mBookingDialog;
+    private Query query;
+    private QueueAdapter adapter;
+    private BookingDialogFragment bookingDialog;
 
     public static QueueFragment newInstance(final Queue queue) {
         QueueFragment queueFragment = new QueueFragment();
@@ -65,7 +65,7 @@ public class QueueFragment extends Fragment implements
         return queueFragment;
     }
 
-    private Queue mQueue;
+    private Queue queue;
 
     public QueueFragment() {
         // Required empty public constructor
@@ -74,8 +74,8 @@ public class QueueFragment extends Fragment implements
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.mQueue = (Queue) getArguments().getSerializable(QUEUE_BUNDLE_KEY);
-        mQuery = FirestoreUtil.getBookings(this.mQueue);
+        this.queue = (Queue) getArguments().getSerializable(QUEUE_BUNDLE_KEY);
+        query = FirestoreUtil.getBookings(this.queue);
     }
 
     @Override
@@ -90,16 +90,16 @@ public class QueueFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
         // RecyclerView
-        mAdapter = new QueueAdapter(mQueue, mQuery, this) {
+        adapter = new QueueAdapter(queue, query, this) {
             @Override
             protected void onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (getItemCount() == 0) {
-                    mBookingsRecycler.setVisibility(View.GONE);
-                    mEmptyView.setVisibility(View.VISIBLE);
+                    bookingsRecycler.setVisibility(View.GONE);
+                    emptyView.setVisibility(View.VISIBLE);
                 } else {
-                    mBookingsRecycler.setVisibility(View.VISIBLE);
-                    mEmptyView.setVisibility(View.GONE);
+                    bookingsRecycler.setVisibility(View.VISIBLE);
+                    emptyView.setVisibility(View.GONE);
                 }
             }
 
@@ -110,12 +110,12 @@ public class QueueFragment extends Fragment implements
             }
         };
 
-        mBookingsRecycler.setLayoutManager(new LinearLayoutManager(this.getContext()));
-        mBookingsRecycler.setAdapter(mAdapter);
+        bookingsRecycler.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        bookingsRecycler.setAdapter(adapter);
 
         // Booking Dialog
-        mBookingDialog = new BookingDialogFragment();
-        mBookingDialog.setBookingListener(this);
+        bookingDialog = new BookingDialogFragment();
+        bookingDialog.setBookingListener(this);
 
         super.onViewCreated(view, savedInstanceState);
     }
@@ -130,8 +130,8 @@ public class QueueFragment extends Fragment implements
         super.onStart();
 
         // Start listening for Firestore updates
-        if (mAdapter != null) {
-            mAdapter.startListening();
+        if (adapter != null) {
+            adapter.startListening();
         }
     }
 
@@ -139,21 +139,21 @@ public class QueueFragment extends Fragment implements
     public void onStop() {
         super.onStop();
 
-        if (mAdapter != null) {
-            mAdapter.stopListening();
+        if (adapter != null) {
+            adapter.stopListening();
         }
     }
 
     @Override
     public void onBookingSelected(Booking booking) {
         // A booking is selected
-        Snackbar.make(getActivity().findViewById(android.R.id.content), "Book", Snackbar.LENGTH_LONG).show();
+        // Snackbar.make(getActivity().findViewById(android.R.id.content), "Book", Snackbar.LENGTH_LONG).show();
     }
 
     @OnClick(R.id.button_add_booking)
     public void onAddBookingClicked(View view) {
         Log.i(TAG, "Add a booking");
-        mBookingDialog.show(getChildFragmentManager(), BookingDialogFragment.TAG);
+        bookingDialog.show(getChildFragmentManager(), BookingDialogFragment.TAG);
     }
 
 
@@ -182,7 +182,7 @@ public class QueueFragment extends Fragment implements
 
     void clearQueue(){
         final Entity entity = KyooApp.getInstance(getActivity()).getEntity();
-        KyooApp.getApiService().clearQueue(entity.getId(), mQueue.getId()).enqueue(new Callback<String>() {
+        KyooApp.getApiService().clearQueue(entity.getId(), queue.getId()).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 if (response.isSuccessful()) {
@@ -217,7 +217,7 @@ public class QueueFragment extends Fragment implements
 
     void saveBooking(final Booking booking) {
         final Entity entity = KyooApp.getInstance(getActivity()).getEntity();
-        KyooApp.getApiService().saveBooking(entity.getId(), mQueue.getId(), new BookingRequest(booking)).enqueue(new Callback<Booking>() {
+        KyooApp.getApiService().saveBooking(entity.getId(), queue.getId(), new BookingRequest(booking)).enqueue(new Callback<Booking>() {
             @Override
             public void onResponse(Call<Booking> call, Response<Booking> response) {
                 if (response.isSuccessful()) {

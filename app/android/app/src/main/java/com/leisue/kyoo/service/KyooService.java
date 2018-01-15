@@ -3,6 +3,7 @@ package com.leisue.kyoo.service;
 import com.leisue.kyoo.model.Booking;
 import com.leisue.kyoo.model.BookingRequest;
 import com.leisue.kyoo.model.Entity;
+import com.leisue.kyoo.model.EntityRequest;
 import com.leisue.kyoo.model.Queue;
 
 import java.util.List;
@@ -22,6 +23,9 @@ public interface KyooService {
 
     @GET("/entity/{entityId}")
     Call<Entity> getEntity(@Path("entityId") String entityId);
+
+    @POST("/entity")
+    Call<Entity> saveEntity(@Body EntityRequest entityRequest);
 
     @GET("/entity/{entityId}/queue")
     Call<List<Queue>> getQueues(@Path("entityId") String entityId);

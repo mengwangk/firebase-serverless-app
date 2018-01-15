@@ -18,13 +18,13 @@ import butterknife.ButterKnife;
 public class SettingsActivity extends BaseActivity {
 
     @BindView(R.id.edit_entity_name)
-    EditText mEntityName;
+    EditText entityName;
 
     @BindView(R.id.edit_entity_email)
-    EditText mEntityEmail;
+    EditText entityEmail;
 
     @BindView(R.id.edit_entity_id)
-    EditText mEntityId;
+    EditText entityId;
 
 
     @Override
@@ -50,9 +50,9 @@ public class SettingsActivity extends BaseActivity {
     void displayEntity(){
         final Entity entity = KyooApp.getInstance(this).getEntity();
         if (entity != null) {
-            mEntityName.setText(entity.getName());
-            mEntityEmail.setText(entity.getEmail());
-            mEntityId.setText(entity.getId());
+            entityName.setText(entity.getName());
+            entityEmail.setText(entity.getEmail());
+            entityId.setText(entity.getId());
         }
     }
 }

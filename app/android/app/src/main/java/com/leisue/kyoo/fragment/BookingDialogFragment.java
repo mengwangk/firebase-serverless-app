@@ -29,28 +29,28 @@ public class BookingDialogFragment extends DialogFragment {
         void onBooking(Booking booking);
     }
 
-    private View mRootView;
+    private View rootView;
 
     @BindView(R.id.edit_name)
-    EditText mName;
+    EditText name;
 
     @BindView(R.id.edit_contact_no)
-    EditText mContactNo;
+    EditText contactNo;
 
     @BindView(R.id.edit_no_of_seats)
-    EditText mNoOfSeats;
+    EditText noOfSeats;
 
-    private BookingListener mBookingListener;
+    private BookingListener bookingListener;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        mRootView = inflater.inflate(R.layout.dialog_booking, container, false);
-        ButterKnife.bind(this, mRootView);
+        rootView = inflater.inflate(R.layout.dialog_booking, container, false);
+        ButterKnife.bind(this, rootView);
 
-        return mRootView;
+        return rootView;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class BookingDialogFragment extends DialogFragment {
 
     @OnClick(R.id.button_add)
     public void onAddClicked() {
-        if (mBookingListener != null) {
-            mBookingListener.onBooking(getBooking());
+        if (bookingListener != null) {
+            bookingListener.onBooking(getBooking());
         }
 
         dismiss();
@@ -83,17 +83,17 @@ public class BookingDialogFragment extends DialogFragment {
     public Booking getBooking() {
         Booking booking = new Booking();
 
-        if (mRootView != null) {
-            booking.setName(mName.getText().toString());
-            booking.setContactNo(mContactNo.getText().toString());
-            if (!TextUtils.isEmpty(mNoOfSeats.getText().toString()))
-                booking.setNoOfCustomers(Integer.parseInt(mNoOfSeats.getText().toString()));
+        if (rootView != null) {
+            booking.setName(name.getText().toString());
+            booking.setContactNo(contactNo.getText().toString());
+            if (!TextUtils.isEmpty(noOfSeats.getText().toString()))
+                booking.setNoOfCustomers(Integer.parseInt(noOfSeats.getText().toString()));
         }
 
         return booking;
     }
 
     void setBookingListener(BookingListener listener) {
-        this.mBookingListener = listener;
+        this.bookingListener = listener;
     }
 }

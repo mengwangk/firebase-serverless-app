@@ -17,11 +17,11 @@ const FireStore = (function() {
         return obj;
     }
 
-    const deleteDoc = function(docRef) {
+    const deleteDoc = function(docRef, callback) {
         const doc = docRef.delete().then( () => {
-            // Do nothing now
+            callback();
         }).catch((err) => {
-            // Do nothing now
+            callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err));
         });
     }
 
@@ -163,8 +163,7 @@ const FireStore = (function() {
         docRef.get()
             .then(doc => {
                 if (doc.exists) {
-                    deleteDoc(docRef);
-                    callback();
+                    deleteDoc(docRef, callback);
                 } else {
                     callback(null, new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, "Path: {0}".format(docRef.path)));
                 }
