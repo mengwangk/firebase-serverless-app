@@ -21,7 +21,7 @@
             android:layout_toRightOf="@+id/edit_entity_name"
             android:gravity="left"
             android:maxLines="1"
-            android:text="@string/label_name" />
+            android:text="@string/name" />
 
         <EditText
             android:id="@+id/edit_entity_name"
@@ -50,7 +50,7 @@
             android:layout_toRightOf="@+id/edit_entity_email"
             android:gravity="left"
             android:maxLines="1"
-            android:text="@string/label_email" />
+            android:text="@string/email" />
 
         <EditText
             android:id="@+id/edit_entity_email"
@@ -79,7 +79,7 @@
             android:layout_toRightOf="@+id/edit_entity_id"
             android:gravity="left"
             android:maxLines="1"
-            android:text="@string/label_entity_id" />
+            android:text="@string/entity_id" />
 
         <EditText
             android:id="@+id/edit_entity_id"

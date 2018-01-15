@@ -29,7 +29,7 @@
             android:gravity="left"
             android:maxLines="1"
             android:layout_toRightOf="@+id/edit_name"
-            android:text="@string/label_name" />
+            android:text="@string/name" />
 
         <EditText
             android:id="@+id/edit_name"
@@ -60,7 +60,7 @@
             android:gravity="left"
             android:maxLines="1"
             android:layout_toRightOf="@+id/edit_contact_no"
-            android:text="@string/label_contact_no" />
+            android:text="@string/contact_no" />
 
         <EditText
             android:id="@+id/edit_contact_no"
@@ -92,7 +92,7 @@
             android:gravity="left"
             android:maxLines="1"
             android:layout_toRightOf="@+id/edit_no_of_seats"
-            android:text="@string/label_no_of_seats" />
+            android:text="@string/no_of_seats" />
 
         <EditText
             android:id="@+id/edit_no_of_seats"
