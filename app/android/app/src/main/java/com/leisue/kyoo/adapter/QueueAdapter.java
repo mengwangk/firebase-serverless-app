@@ -33,13 +33,13 @@ public class QueueAdapter extends FirestoreAdapter<QueueAdapter.ViewHolder> {
         void onBookingSelected(Booking booking);
     }
 
-    private OnBookingSelectedListener mListener;
-    private Queue mQueue;
+    private OnBookingSelectedListener listener;
+    private Queue queue;
 
     public QueueAdapter(Queue queue, Query query, OnBookingSelectedListener listener) {
         super(query);
-        mQueue = queue;
-        mListener = listener;
+        this.queue = queue;
+        this.listener = listener;
     }
 
     @Override
@@ -50,7 +50,7 @@ public class QueueAdapter extends FirestoreAdapter<QueueAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.bind(getSnapshot(position), mListener);
+        holder.bind(getSnapshot(position), listener);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -98,7 +98,7 @@ public class QueueAdapter extends FirestoreAdapter<QueueAdapter.ViewHolder> {
                 public void onClick(final View view) {
                     // Delete the booking
                     final Entity entity = KyooApp.getInstance(KyooApp.getContext()).getEntity();
-                    KyooApp.getApiService().deleteBooking(entity.getId(), mQueue.getId(), booking.getId()).enqueue(new Callback<String>() {
+                    KyooApp.getApiService().deleteBooking(entity.getId(), queue.getId(), booking.getId()).enqueue(new Callback<String>() {
                         @Override
                         public void onResponse(Call<String> call, Response<String> response) {
                             if (response.isSuccessful()) {
