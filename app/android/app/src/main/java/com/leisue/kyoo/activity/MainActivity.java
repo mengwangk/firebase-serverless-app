@@ -13,7 +13,7 @@ import android.util.Log;
 import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.KyooConfig;
 import com.leisue.kyoo.R;
-import com.leisue.kyoo.fragment.QueueFragment;
+import com.leisue.kyoo.fragment.BookingQueueFragment;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.Queue;
 
@@ -61,7 +61,7 @@ public class MainActivity extends BaseActivity {
     private void setupQueues(final List<Queue> queues) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         for (Queue queue : queues) {
-            adapter.addFrag(QueueFragment.newInstance(queue), queue.getName());
+            adapter.addFrag(BookingQueueFragment.newInstance(queue), queue.getName());
         }
         viewPager.setAdapter(adapter);
     }

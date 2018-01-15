@@ -19,7 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.R;
-import com.leisue.kyoo.adapter.QueueAdapter;
+import com.leisue.kyoo.adapter.BookingQueueAdapter;
 import com.leisue.kyoo.model.Booking;
 import com.leisue.kyoo.model.BookingRequest;
 import com.leisue.kyoo.model.Entity;
@@ -33,14 +33,14 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
 /**
- * @deprecated Use BookingQueueFragement
+ * Booking queue
  */
-public class QueueFragment extends Fragment implements
-    BookingDialogFragment.BookingListener, QueueAdapter.OnBookingSelectedListener {
 
-    private static final String TAG = "QueueFragment";
+public class BookingQueueFragment extends Fragment implements
+    BookingDialogFragment.BookingListener, BookingQueueAdapter.OnBookingSelectedListener {
+
+    private static final String TAG = "BookingQueueFragment";
 
     private static final String QUEUE_BUNDLE_KEY = "queue";
 
@@ -57,11 +57,11 @@ public class QueueFragment extends Fragment implements
     FloatingActionButton clearQueueButton;
 
     private Query query;
-    private QueueAdapter adapter;
+    private BookingQueueAdapter adapter;
     private BookingDialogFragment bookingDialog;
 
-    public static QueueFragment newInstance(final Queue queue) {
-        QueueFragment queueFragment = new QueueFragment();
+    public static BookingQueueFragment newInstance(final Queue queue) {
+        BookingQueueFragment queueFragment = new BookingQueueFragment();
         Bundle bundle = new Bundle(1);
         bundle.putSerializable(QUEUE_BUNDLE_KEY, queue);
         queueFragment.setArguments(bundle);
@@ -70,7 +70,7 @@ public class QueueFragment extends Fragment implements
 
     private Queue queue;
 
-    public QueueFragment() {
+    public BookingQueueFragment() {
         // Required empty public constructor
     }
 
@@ -93,9 +93,9 @@ public class QueueFragment extends Fragment implements
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
         // RecyclerView
-        adapter = new QueueAdapter(queue, query, this) {
+        adapter = new BookingQueueAdapter(getActivity(), queue, query, this) {
             @Override
-            protected void onDataChanged() {
+            public void onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (getItemCount() == 0) {
                     bookingsRecycler.setVisibility(View.GONE);
@@ -107,7 +107,7 @@ public class QueueFragment extends Fragment implements
             }
 
             @Override
-            protected void onError(FirebaseFirestoreException e) {
+            public void onError(FirebaseFirestoreException e) {
                 // Show a snackbar on errors
                 Snackbar.make(getActivity().findViewById(android.R.id.content), "Error: check logs for info.", Snackbar.LENGTH_LONG).show();
             }
@@ -131,26 +131,16 @@ public class QueueFragment extends Fragment implements
     @Override
     public void onStart() {
         super.onStart();
-
-        // Start listening for Firestore updates
-        if (adapter != null) {
-            adapter.startListening();
-        }
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        if (adapter != null) {
-            adapter.stopListening();
-        }
     }
 
     @Override
     public void onBookingSelected(Booking booking) {
         // A booking is selected
-        // Snackbar.make(getActivity().findViewById(android.R.id.content), "Book", Snackbar.LENGTH_LONG).show();
     }
 
     @OnClick(R.id.button_add_booking)

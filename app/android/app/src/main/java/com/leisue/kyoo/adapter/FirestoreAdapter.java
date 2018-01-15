@@ -15,6 +15,8 @@ import java.util.ArrayList;
 
 /**
  * Adapter from Firebase sample.
+ *
+ * @deprecated
  */
 
 public abstract class FirestoreAdapter<VH extends RecyclerView.ViewHolder>
