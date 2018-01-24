@@ -1,14 +1,30 @@
-const utils = require('../shared/utils.js');
-const FieldValue = require("firebase-admin").firestore.FieldValue;
+'use strict'
 
+const uuidv4 = require('uuid/v4')
+
+/**
+ * Booking.
+ * @public
+ * @class
+ */
 class Booking {
-    constructor(name, contactNo, noOfCustomers, bookingNo = '') {
-        this.id = utils.UUID.generate();
-        this.name = name;
-        this.contactNo = contactNo;
-        this.noOfCustomers = noOfCustomers;
-        this.bookedDate = Date.now();
-        this.bookingNo = bookingNo;
-    }
+
+  /**
+   * Booked date field name.
+   * @public
+   */
+  static get BOOKED_DATE_FIELD () {
+    return 'bookedDate'
+  }
+
+
+  constructor (name, contactNo, noOfSeats, id = '', bookingNo = '', bookedDate = Date.now()) {
+    (!id) ? this.id = uuidv4() : this.id = id
+    this.name = name
+    this.contactNo = contactNo
+    this.noOfSeats = noOfSeats
+    this.bookedDate = bookedDate
+    this.bookingNo = bookingNo
+  }
 }
-module.exports = Booking;
+module.exports = Booking

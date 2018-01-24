@@ -1,39 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settings_form"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp">
 
+    <TextView
+        style="@style/AppTheme.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/header_entity" />
+
+    <ImageView
+        android:id="@+id/img_avatar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:contentDescription="@string/avatar"
+        android:scaleType="centerCrop"
+        android:visibility="visible"
+        tools:visibility="visible" />
+
+
+    <Button
+        android:id="@+id/button_upload"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/upload"
+        android:layout_gravity="center_horizontal"
+        android:theme="@style/ThemeOverlay.ApplyButton" />
+
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tv_entity_name"
+            android:id="@+id/tv_entity_id"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
-            android:layout_toRightOf="@+id/edit_entity_name"
-            android:gravity="left"
+            android:layout_marginStart="5dp"
+            android:layout_toRightOf="@+id/edit_entity_id"
+            android:layout_toEndOf="@+id/edit_entity_id"
+            android:gravity="start"
             android:maxLines="1"
-            android:text="@string/name" />
+            android:text="@string/entity_id" />
 
         <EditText
-            android:id="@+id/edit_entity_name"
+            android:id="@+id/edit_entity_id"
             android:layout_width="250dip"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="20dp"
-            android:gravity="right"
-            android:inputType="none"
-            android:singleLine="true" />
+            android:layout_marginEnd="20dp"
+            android:gravity="end"
+            android:inputType="textPersonName"
+            android:singleLine="true"
+            android:text="" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -45,10 +80,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             android:layout_toRightOf="@+id/edit_entity_email"
-            android:gravity="left"
+            android:layout_toEndOf="@+id/edit_entity_email"
+            android:gravity="start"
             android:maxLines="1"
             android:text="@string/email" />
 
@@ -57,10 +95,46 @@
             android:layout_width="250dip"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="20dp"
-            android:gravity="right"
+            android:layout_marginEnd="20dp"
+            android:gravity="end"
+            android:inputType="textEmailAddress"
+            android:singleLine="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_entity_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_toRightOf="@+id/edit_entity_name"
+            android:layout_toEndOf="@+id/edit_entity_name"
+            android:gravity="start"
+            android:maxLines="1"
+            android:text="@string/name" />
+
+        <EditText
+            android:id="@+id/edit_entity_name"
+            android:layout_width="250dip"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="20dp"
+            android:layout_marginEnd="20dp"
+            android:gravity="end"
             android:inputType="none"
             android:singleLine="true" />
     </RelativeLayout>
@@ -70,30 +144,35 @@
         android:layout_height="wrap_content">
 
         <TextView
-            android:id="@+id/tv_entity_id"
+            android:id="@+id/tv_entity_industry"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="5dp"
-            android:layout_toRightOf="@+id/edit_entity_id"
-            android:gravity="left"
+            android:layout_marginStart="5dp"
+            android:layout_toRightOf="@+id/spinner_entity_industry"
+            android:layout_toEndOf="@+id/spinner_entity_industry"
+            android:gravity="start"
             android:maxLines="1"
-            android:text="@string/entity_id" />
+            android:text="@string/industry" />
 
-        <EditText
-            android:id="@+id/edit_entity_id"
+        <Spinner
+            android:id="@+id/spinner_entity_industry"
             android:layout_width="250dip"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="20dp"
-            android:gravity="right"
-            android:inputType="textPersonName"
-            android:singleLine="true"
-            android:text="" />
+            android:layout_marginEnd="20dp"
+            android:gravity="end" />
+
     </RelativeLayout>
+
+
 
     <!-- Cancel and apply buttons -->
     <LinearLayout
@@ -107,11 +186,39 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/button_add"
+            android:id="@+id/button_apply"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@string/apply"
             android:theme="@style/ThemeOverlay.ApplyButton" />
     </LinearLayout>
+
+    <TextView
+        style="@style/AppTheme.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="@string/header_queue" />
+
+    <!-- Cancel and apply buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/button_configure_queue"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/configure_queue"
+            android:theme="@style/ThemeOverlay.ApplyButton" />
+    </LinearLayout>
+
 </LinearLayout>

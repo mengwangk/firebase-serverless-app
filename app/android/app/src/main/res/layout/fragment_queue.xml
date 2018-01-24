@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.leisue.kyoo.fragment.BookingQueueFragment">
+    tools:context=".ui.fragment.BookingQueueFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -14,6 +14,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/white"
+            android:scrollbars="vertical"
             tools:listitem="@layout/item_booking" />
 
         <!-- Empty list view -->
@@ -29,11 +30,11 @@
             tools:visibility="gone">
 
             <TextView
-                style="@style/AppTheme.Body1"
+                style="@style/AppTheme.Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/message_no_results"
+                android:text="@string/message_no_bookings"
                 android:textColor="@color/greyDisabled" />
         </LinearLayout>
 

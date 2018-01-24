@@ -1,11 +1,16 @@
-const express = require('express');
-const path = require('path');
-const constants = require('../shared/constants');
+'use strict'
 
-const router = express.Router();
+const express = require('express')
+const constants = require('../shared/constants')
 
+const router = express.Router()
+
+/**
+ * Default home route.
+ * @public
+ */
 router.get('/', function (req, res, next) {
-    res.render('index', { appName: constants.AppName, partials: Object.assign({}, constants.Partials)});
-});
+  res.render('index', { appName: constants.AppName, partials: Object.assign({}, constants.Partials) })
+})
 
-module.exports = router;
+module.exports = router

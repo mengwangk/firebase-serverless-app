@@ -1,9 +1,16 @@
+'use strict'
+
+/**
+ * Application error.
+ * @public
+ * @class
+ */
 class ApplicationError {
-    constructor(statusCode, error, source) {
-        this.statusCode = statusCode;
-        this.error = error;
-        this.source = source;
-    }
+  constructor (statusCode, error, source = '') {
+    this.statusCode = statusCode
+    this.error = error
+    this.source = source
+  }
 }
 
-module.exports = ApplicationError;
+module.exports = ApplicationError

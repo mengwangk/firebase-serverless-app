@@ -6,3 +6,5 @@ firebase-debug.log
 local.properties
 *.iml
 build/
+.project
+bin/

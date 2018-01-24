@@ -8,6 +8,23 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Booking {
 
+
+    public enum ACTION {
+
+        DONE("done"),
+        REMOVE("remove");
+
+        private final String id;
+
+        ACTION(final String id) {
+            this.id = id;
+        }
+
+        public String getId() {
+            return id;
+        }
+    }
+
     @SerializedName("id")
     @Expose
     private String id;
@@ -17,9 +34,9 @@ public class Booking {
     @SerializedName("contactNo")
     @Expose
     private String contactNo;
-    @SerializedName("noOfCustomers")
+    @SerializedName("noOfSeats")
     @Expose
-    private Integer noOfCustomers;
+    private Integer noOfSeats;
     @SerializedName("bookedDate")
     @Expose
     private Long bookedDate;
@@ -32,7 +49,7 @@ public class Booking {
         this.id = "";
         this.name = "";
         this.contactNo = "";
-        this.noOfCustomers = 0;
+        this.noOfSeats = 0;
         this.bookedDate = 0l;
         this.bookingNo = "";
     }
@@ -61,12 +78,12 @@ public class Booking {
         this.contactNo = contactNo;
     }
 
-    public Integer getNoOfCustomers() {
-        return noOfCustomers;
+    public Integer getNoOfSeats() {
+        return noOfSeats;
     }
 
-    public void setNoOfCustomers(Integer noOfCustomers) {
-        this.noOfCustomers = noOfCustomers;
+    public void setNoOfSeats(Integer noOfSeats) {
+        this.noOfSeats = noOfSeats;
     }
 
     public Long getBookedDate() {
@@ -96,7 +113,7 @@ public class Booking {
         if (name != null ? !name.equals(booking.name) : booking.name != null) return false;
         if (contactNo != null ? !contactNo.equals(booking.contactNo) : booking.contactNo != null)
             return false;
-        if (noOfCustomers != null ? !noOfCustomers.equals(booking.noOfCustomers) : booking.noOfCustomers != null)
+        if (noOfSeats != null ? !noOfSeats.equals(booking.noOfSeats) : booking.noOfSeats != null)
             return false;
         if (bookedDate != null ? !bookedDate.equals(booking.bookedDate) : booking.bookedDate != null)
             return false;
@@ -108,7 +125,7 @@ public class Booking {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (contactNo != null ? contactNo.hashCode() : 0);
-        result = 31 * result + (noOfCustomers != null ? noOfCustomers.hashCode() : 0);
+        result = 31 * result + (noOfSeats != null ? noOfSeats.hashCode() : 0);
         result = 31 * result + (bookedDate != null ? bookedDate.hashCode() : 0);
         result = 31 * result + (bookingNo != null ? bookingNo.hashCode() : 0);
         return result;
@@ -120,7 +137,7 @@ public class Booking {
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", contactNo='" + contactNo + '\'' +
-            ", noOfCustomers=" + noOfCustomers +
+            ", noOfSeats=" + noOfSeats +
             ", bookedDate=" + bookedDate +
             ", bookingNo='" + bookingNo + '\'' +
             '}';

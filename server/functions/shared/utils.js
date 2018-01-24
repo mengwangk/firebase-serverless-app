@@ -1,29 +1,62 @@
-const UUID = (function() {
-  var self = {};
-  var lut = []; for (var i=0; i<256; i++) { lut[i] = (i<16?'0':'')+(i).toString(16); }
-  self.generate = function() {
-    var d0 = Math.random()*0xffffffff|0;
-    var d1 = Math.random()*0xffffffff|0;
-    var d2 = Math.random()*0xffffffff|0;
-    var d3 = Math.random()*0xffffffff|0;
-    return lut[d0&0xff]+lut[d0>>8&0xff]+lut[d0>>16&0xff]+lut[d0>>24&0xff]+'-'+
-      lut[d1&0xff]+lut[d1>>8&0xff]+'-'+lut[d1>>16&0x0f|0x40]+lut[d1>>24&0xff]+'-'+
-      lut[d2&0x3f|0x80]+lut[d2>>8&0xff]+'-'+lut[d2>>16&0xff]+lut[d2>>24&0xff]+
-      lut[d3&0xff]+lut[d3>>8&0xff]+lut[d3>>16&0xff]+lut[d3>>24&0xff];
-  }
-  return self;
-})();
+'use strict'
 
-const Prefix = (function () {
-  var self = {};
-  var chars = 'ABCDEFGHIJKLMNOPQURSTUVWXYZ';
-  self.generate = function() {
-    return chars.substr(Math.floor(Math.random() * chars.length-2), 1);
+/**
+ * Queue counter helper.
+ * @public
+ */
+const Counter = (function () {
+  var self = {}
+  var chars = 'ABCDEFGHIJKLMNOPQURSTUVWXYZ'
+
+  /**
+   * Generate a random prefix between A-Z.
+   * @public
+   */
+  self.prefix = function () {
+    return chars.substr(Math.floor(Math.random() * chars.length - 2), 1)
   }
-  return self;
-})();
+
+  /**
+   * Check the queue number. Reset to 1 if necessary.
+   *
+   * @param {number} counter Current queue number.
+   * @returns {number} Counter
+   * @public
+   */
+  self.next = function (counter) {
+    if (counter >= 999) return 1
+    return counter
+  }
+
+  return self
+})()
+
+/**
+ * Object mapper helper.
+ * @public
+ */
+const Mapper = (function () {
+  var self = {}
+
+  /**
+   * Map fields from source to target object.
+   *
+   * @param {Object} target Target object
+   * @param {Object} source Source object
+   */
+  self.assign = function (target, source) {
+    if (!target || !source) return
+
+    // Map the field values
+    for (let [key, value] of Object.entries(target)) {
+      if (source[key]) target[key] = source[key]
+    }
+  }
+
+  return self
+})()
 
 module.exports = {
-    UUID: UUID,
-    Prefix: Prefix
+  Counter: Counter,
+  Mapper: Mapper
 }

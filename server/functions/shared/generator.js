@@ -1,1 +1,0 @@
-// TODO - Algorithm and classes to generate different types of counter - A0001, 9999, etc.

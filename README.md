@@ -1,6 +1,5 @@
-# firebase-serverless-app
-Serverless app on Firebase
+# Kyoo Backend and Sample Projects
 
-* server - Cloud hosting and functions
-* app - Mobile and web apps
+* server - Cloud hosting and functions.
+* app - Android app and web app samples.
 
