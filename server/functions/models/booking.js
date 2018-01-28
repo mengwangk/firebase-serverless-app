@@ -8,7 +8,6 @@ const uuidv4 = require('uuid/v4')
  * @class
  */
 class Booking {
-
   /**
    * Booked date field name.
    * @public
@@ -16,7 +15,6 @@ class Booking {
   static get BOOKED_DATE_FIELD () {
     return 'bookedDate'
   }
-
 
   constructor (name, contactNo, noOfSeats, id = '', bookingNo = '', bookedDate = Date.now()) {
     (!id) ? this.id = uuidv4() : this.id = id

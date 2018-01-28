@@ -1,5 +1,6 @@
 package com.leisue.kyoo.ui.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -9,12 +10,17 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.R;
-import com.leisue.kyoo.ui.fragment.BookingQueueFragment;
 import com.leisue.kyoo.model.Entity;
+import com.leisue.kyoo.model.History;
 import com.leisue.kyoo.model.Queue;
+import com.leisue.kyoo.ui.fragment.BookingQueueFragment;
+import com.leisue.kyoo.ui.fragment.HistoryQueueFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,6 +51,26 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
         tabLayout.setupWithViewPager(viewPager);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_queue, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_queue_list:
+                startActivity(new Intent(this, QueueListActivity.class));
+                return true;
+            case R.id.action_save_to_archive:
+                saveToArchive();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     @Override
     protected void onStart() {
@@ -63,6 +89,9 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
         loadQueues(entity);
         KyooApp.getInstance(this).setEntity(entity);  // Set the returned entity into global application context
         setHeaderView();
+
+        // Testing
+        //startActivity(new Intent(this, QueueListActivity.class));
     }
 
     private void setupQueues(final List<Queue> queues) {
@@ -74,6 +103,8 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
             for (Queue queue : queues) {
                 adapter.addFrag(BookingQueueFragment.newInstance(queue), queue.getName());
             }
+            // Add the history queue
+            adapter.addFrag(HistoryQueueFragment.newInstance(), HistoryQueueFragment.TAG);
             viewPager.setAdapter(adapter);
         }
     }
@@ -106,6 +137,27 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
 
         // Highlight the menu item
         navigationView.setCheckedItem(R.id.menu_item_queue);
+    }
+
+    void saveToArchive(){
+        final Entity entity = KyooApp.getInstance(this).getEntity();
+        KyooApp.getApiService().archiveHistory(entity.getId(), History.ACTION.ARCHIVE.getId()).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                if (response.isSuccessful()) {
+                    Snackbar.make(findViewById(android.R.id.content), R.string.message_history_archived, Snackbar.LENGTH_LONG).show();
+                } else {
+                    // handle request errors depending on status code
+                    int statusCode = response.code();
+                    Snackbar.make(findViewById(android.R.id.content), KyooApp.getContext().getString(R.string.message_history_archive_error_status_code, statusCode), Snackbar.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                Snackbar.make(findViewById(android.R.id.content), R.string.message_history_archive_error, Snackbar.LENGTH_LONG).show();
+            }
+        });
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {

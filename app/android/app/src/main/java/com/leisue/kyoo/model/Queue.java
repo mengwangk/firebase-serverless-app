@@ -12,6 +12,7 @@ import java.io.Serializable;
  */
 public class Queue implements Serializable, Comparable<Queue> {
 
+    public static final String FIELD_NAME = "name";
     public static final String FIELD_BOOKED_DATE = "bookedDate";
 
     @SerializedName("id")

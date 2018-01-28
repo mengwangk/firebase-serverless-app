@@ -1,18 +1,21 @@
 'use strict'
 
 const express = require('express')
-const constants = require('../shared/constants')
-const utils = require('../shared/utils')
-const HttpStatus = require('http-status-codes')
-const ApplicationError = require('../models/application-error')
-const FirebaseUtils = require('../shared/firebase-utils')
 const router = express.Router()
 
 /**
- *
+ * Get list of archived bookings for a particular entity.
  * @public
  */
-router.get('/', function (req, res, next) {
+router.get('/:entityId', function (req, res, next) {
+
+})
+
+/**
+ * Delete archived bookings for a particular entity.
+ * @public
+ */
+router.delete('/:entityId', function (req, res, next) {
 
 })
 

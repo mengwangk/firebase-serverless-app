@@ -1,0 +1,53 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.fragment.HistoryQueueFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_history"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/white"
+            android:scrollbars="vertical"
+            tools:listitem="@layout/item_history" />
+
+        <!-- Empty list view -->
+        <LinearLayout
+            android:id="@+id/view_empty"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <TextView
+                style="@style/AppTheme.Caption"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/message_no_history"
+                android:textColor="@color/greyDisabled" />
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/progress_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/recycler_history"
+        android:layout_alignTop="@+id/recycler_history"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone" />
+
+</android.support.design.widget.CoordinatorLayout>
+

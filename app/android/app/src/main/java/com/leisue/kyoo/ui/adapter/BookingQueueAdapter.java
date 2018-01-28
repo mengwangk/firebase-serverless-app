@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
@@ -79,9 +78,6 @@ public class BookingQueueAdapter extends FirestoreRecyclerAdapter<Booking, Booki
 
         @BindView(R.id.booking_contact_no)
         TextView bookingContactNoView;
-
-        @BindView(R.id.button_remove)
-        ImageButton removeButon;
 
         BookingViewHolder(View itemView) {
             super(itemView);

@@ -231,7 +231,7 @@ router.delete('/:entityId/queue/:queueId', function (req, res, next) {
     if (err != null) {
       res.status(err.statusCode).json(err)
     } else {
-      res.status(HttpStatus.NO_CONTENT).json(constants.QueueDeleted)
+      res.status(HttpStatus.ACCEPTED).json(constants.QueueDeleted)
     }
   }
 

@@ -2,6 +2,7 @@ package com.leisue.kyoo.ui.adapter;
 
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.R;
+import com.leisue.kyoo.model.Booking;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.Queue;
 
@@ -27,6 +29,8 @@ import retrofit2.Response;
 
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHolder> {
 
+    private static final String TAG = "QueueAdapter";
+
     public interface OnQueueSelectedListener {
         void onQueueSelected(Queue queue);
     }
@@ -42,6 +46,10 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHol
         @BindView(R.id.queue_name)
         TextView queueName;
 
+        @BindView(R.id.queue_bookings)
+        TextView queueBookings;
+
+
         @BindView(R.id.button_remove)
         ImageButton deleteButton;
 
@@ -51,7 +59,8 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHol
         }
 
         void bind(final Queue queue, final OnQueueSelectedListener listener) {
-            queueName.setText(queue.getName());
+            queueName.setText(queue.getName() + " (" + queue.getMinCapacity() + "-" + queue.getMaxCapacity() + ")");
+            getNumberOfBookings(queue);
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -78,7 +87,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHol
                             } else {
                                 // handle request errors depending on status code
                                 int statusCode = response.code();
-                                Snackbar.make(recyclerView.getRootView(), KyooApp.getContext().getString(R.string.message_queue_delete_status_code, statusCode) , Snackbar.LENGTH_LONG).show();
+                                Snackbar.make(recyclerView.getRootView(), KyooApp.getContext().getString(R.string.message_queue_delete_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                             }
                         }
 
@@ -88,6 +97,33 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.QueueViewHol
                         }
                     });
 
+                }
+            });
+        }
+
+        void getNumberOfBookings(final Queue queue) {
+            final Entity entity = KyooApp.getInstance(KyooApp.getContext()).getEntity();
+            KyooApp.getApiService().getBookingsCount(entity.getId(), queue.getId()).enqueue(new Callback<Integer>() {
+                @Override
+                public void onResponse(Call<Integer> call, Response<Integer> response) {
+                    if (response.isSuccessful()) {
+                        final Integer count = response.body();
+                        if (count == 0) {
+                            queueBookings.setText("Empty");
+                        } else {
+                            queueBookings.setText(count + " Bookings");
+                        }
+
+                    } else {
+                        // handle request errors depending on status code
+                        int statusCode = response.code();
+                        // Snackbar.make(recyclerView.getRootView(), KyooApp.getContext().getString(R.string.message_queue_delete_status_code, statusCode), Snackbar.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Integer> call, Throwable t) {
+                    // Snackbar.make(recyclerView.getRootView(), R.string.message_queue_load_error, Snackbar.LENGTH_LONG).show();
                 }
             });
         }

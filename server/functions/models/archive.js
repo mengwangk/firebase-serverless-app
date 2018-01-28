@@ -1,6 +1,6 @@
 'use strict'
 
-const Booking = require('./booking')
+const History = require('./history')
 
 /**
  * Archived booking.
@@ -8,10 +8,9 @@ const Booking = require('./booking')
  * @public
  * @class
  */
-class Archive extends Booking {
-  constructor (queueId, booking) {
-    super(booking.name, booking.contactNo, booking.noOfSeats, booking.id, booking.bookingNo, booking.bookedDate)
-    this.queueId = queueId
+class Archive extends History {
+  constructor (status, history) {
+    super(history.queueId, status, history, history.historyDate)
   }
 }
 module.exports = Archive

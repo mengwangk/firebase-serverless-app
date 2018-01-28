@@ -2,8 +2,13 @@
     <string name="app_name">Kyoala</string>
 
     <string name="action_queue">Queue</string>
+    <string name="action_archives">Archives</string>
     <string name="action_settings">Settings</string>
 
+    <string name="action_queue_list">Queue List</string>
+    <string name="action_save_to_archive">Save to Archive</string>
+
+    <string name="queue_list">Queue List</string>
     <string name="header_booking">Booking</string>
     <string name="header_entity">Entity</string>
     <string name="header_queue">Queue</string>
@@ -30,10 +35,17 @@
 
     <!-- dialog messages -->
     <string name="message_no_bookings">Oops, no bookings for this queue!</string>
+    <string name="message_no_history">Oops, no history available!</string>
     <string name="message_clear_queue">Clear this queue?</string>
     <string name="message_booking_deleted">Booking deleted</string>
     <string name="message_booking_delete_error">Unable to delete booking</string>
     <string name="message_booking_delete_status_code">Unable to delete booking. Status code is %1$d</string>
+    <string name="message_history_updated">History updated</string>
+    <string name="message_history_update_error">Unable to update history</string>
+    <string name="message_history_update_error_status_code">Unable to update history. Status code is %1$d</string>
+    <string name="message_history_archived">Saved to archive.</string>
+    <string name="message_history_archive_error">Unable to save to archive</string>
+    <string name="message_history_archive_error_status_code">Unable to save to archive. Status code is %1$d</string>
     <string name="message_queue_clear_status_code">Unable to clear queue. Status code is %1$d</string>
     <string name="message_queue_clear_error">Unable to clear queue</string>
     <string name="message_load_queue_error">Error loading queues</string>

@@ -2,25 +2,29 @@ package com.leisue.kyoo.ui.adapter;
 
 import android.content.res.Resources;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.Query;
+import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.R;
+import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.History;
-import com.leisue.kyoo.model.Queue;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * History queue adapter.
@@ -28,23 +32,21 @@ import butterknife.OnClick;
 
 public class HistoryQueueAdapter extends FirestoreRecyclerAdapter<History, HistoryQueueAdapter.HistoryViewHolder> {
 
-    private static final String TAG = "BookingQueueAdapter";
+    private static final String TAG = "HistoryQueueAdapter";
 
     public interface OnHistorySelectedListener {
-        void onHistorySelected(History booking);
+        void onHistorySelected(History history);
     }
 
     private OnHistorySelectedListener listener;
-    private Queue queue;
     private RecyclerView recyclerView;
 
-    protected HistoryQueueAdapter(FragmentActivity activity, Queue queue, Query query, OnHistorySelectedListener listener, RecyclerView recyclerView) {
+    protected HistoryQueueAdapter(FragmentActivity activity, Query query, OnHistorySelectedListener listener, RecyclerView recyclerView) {
         super(new FirestoreRecyclerOptions.Builder<History>()
             .setQuery(query, History.class)
             .setLifecycleOwner(activity)
             .build());
 
-        this.queue = queue;
         this.listener = listener;
         this.recyclerView = recyclerView;
     }
@@ -52,7 +54,7 @@ public class HistoryQueueAdapter extends FirestoreRecyclerAdapter<History, Histo
     @Override
     public HistoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        return new HistoryViewHolder(inflater.inflate(R.layout.item_booking, parent, false));
+        return new HistoryViewHolder(inflater.inflate(R.layout.item_history, parent, false));
     }
 
     @Override
@@ -74,8 +76,8 @@ public class HistoryQueueAdapter extends FirestoreRecyclerAdapter<History, Histo
         @BindView(R.id.booking_contact_no)
         TextView bookingContactNoView;
 
-        @BindView(R.id.button_remove)
-        ImageButton removeButon;
+        @BindView(R.id.booking_status)
+        TextView bookingStatus;
 
         HistoryViewHolder(View itemView) {
             super(itemView);
@@ -89,6 +91,7 @@ public class HistoryQueueAdapter extends FirestoreRecyclerAdapter<History, Histo
             bookingNoView.setText(history.getBookingNo());
             bookingNameView.setText(history.getName());
             bookingContactNoView.setText(history.getContactNo());
+            bookingStatus.setText(history.getStatus());
 
             // Click listener
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -101,41 +104,34 @@ public class HistoryQueueAdapter extends FirestoreRecyclerAdapter<History, Histo
             });
         }
 
-        @OnClick(R.id.button_remove)
-        void onRemoveBooking(){
-            Log.i(TAG, "Delete the history");
-            //changeBooking(Booking.ACTION.REMOVE);
 
+        @OnClick(R.id.button_return)
+        void onReturnBooking() {
+            Log.i(TAG, "Return the history");
+            returnBooking(History.ACTION.RETURN);
         }
 
-        @OnClick(R.id.button_done)
-        void onDoneBooking(){
-            Log.i(TAG, "Done with the history");
-           // changeBooking(Booking.ACTION.DONE);
-        }
-
-        /*
-        void changeBooking(final Booking.ACTION action) {
+        void returnBooking(final History.ACTION action) {
             final Entity entity = KyooApp.getInstance(KyooApp.getContext()).getEntity();
-            KyooApp.getApiService().deleteBooking(entity.getId(), queue.getId(), history.getId(), action.getId()).enqueue(new Callback<String>() {
+
+            KyooApp.getApiService().returnHistory(entity.getId(), history.getQueueId(), history.getId(), action.getId()).enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
                     if (response.isSuccessful()) {
-                        Snackbar.make(recyclerView.getRootView(), R.string.message_booking_deleted, Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(recyclerView.getRootView(), R.string.message_history_updated, Snackbar.LENGTH_LONG).show();
                     } else {
                         // handle request errors depending on status code
                         int statusCode = response.code();
-                        Snackbar.make(recyclerView.getRootView(), KyooApp.getContext().getString(R.string.message_booking_delete_status_code, statusCode) , Snackbar.LENGTH_LONG).show();
+                        Snackbar.make(recyclerView.getRootView(), KyooApp.getContext().getString(R.string.message_history_update_error_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<String> call, Throwable t) {
-                    Snackbar.make(recyclerView.getRootView(), R.string.message_booking_delete_error, Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(recyclerView.getRootView(), R.string.message_history_update_error, Snackbar.LENGTH_LONG).show();
                 }
             });
         }
-        */
 
         public History getHistory() {
             return this.history;

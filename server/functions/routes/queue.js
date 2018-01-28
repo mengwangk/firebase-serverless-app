@@ -28,6 +28,25 @@ router.get('/:entityId/:queueId', function (req, res, next) {
 })
 
 /**
+ * Get booking count under a queue.
+ * @public
+ */
+router.get('/:entityId/:queueId/count', function (req, res, next) {
+  const entityId = req.params.entityId   // entity id
+  const queueId = req.params.queueId     // queue id
+
+  let callback = (results, err = null) => {
+    if (err != null) {
+      res.status(err.statusCode).json(err)
+    } else {
+      res.status(HttpStatus.OK).json(results)
+    }
+  }
+  // Avoid returning large number of records when only the total number of bookings is required
+  FirebaseUtils.fireStore.getBookingsCount(callback, entityId, queueId)
+})
+
+/**
  * Save booking under a queue.
  * @public
  */
@@ -112,7 +131,7 @@ router.delete('/:entityId/:queueId/', function (req, res, next) {
     if (err != null) {
       res.status(err.statusCode).json(err)
     } else {
-      res.status(HttpStatus.ACCEPTED).json(constants.BatchQueueDelete)
+      res.status(HttpStatus.ACCEPTED).json(constants.BatchQueueClear)
     }
   }
   FirebaseUtils.fireStore.clearQueue(callback, entityId, queueId)
@@ -145,7 +164,7 @@ router.delete('/:entityId/:queueId/:bookingId/:action', function (req, res, next
     if (err != null) {
       res.status(err.statusCode).json(err)
     } else {
-      res.status(HttpStatus.NO_CONTENT).json(constants.BookingDeleted)
+      res.status(HttpStatus.OK).json(constants.BookingDeleted)
     }
   }
 

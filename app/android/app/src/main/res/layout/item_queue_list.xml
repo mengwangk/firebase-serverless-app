@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/row_padding_vertical"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/row_padding_vertical">
+
+        <TextView
+            android:id="@+id/queue_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="Queue name" />
+
+        <TextView
+            android:id="@+id/queue_capacity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="20dp"
+            android:layout_toEndOf="@+id/queue_name"
+            android:layout_toRightOf="@+id/queue_name"
+            android:text="Capacity" />
+
+        <TextView
+            android:id="@+id/queue_current_no"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="20dp"
+            android:layout_toEndOf="@+id/queue_capacity"
+            android:layout_toRightOf="@+id/queue_capacity"
+            android:text="Queue" />
+
+        <TextView
+            android:id="@+id/queue_current_seats"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="20dp"
+            android:layout_toEndOf="@+id/queue_current_no"
+            android:layout_toRightOf="@+id/queue_current_no"
+            android:text="Seats" />
+    </RelativeLayout>
+</layout>

@@ -31,6 +31,12 @@
 # Retain declared checked exceptions for use by a Proxy instance.
 -keepattributes Exceptions
 
+-keepattributes *Annotation*
+
+-keepattributes EnclosingMethod
+
+-keepattributes InnerClasses
+
 ######### END  Retrofit ###################################################
 
 ######### BEGIN  Glide ###################################################

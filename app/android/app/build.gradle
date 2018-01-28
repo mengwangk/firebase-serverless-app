@@ -16,12 +16,14 @@ android {
         multiDexEnabled true
         vectorDrawables.useSupportLibrary true
 
+        // TODO - for data binding - to change the code to use this later.
         dataBinding {
             enabled = true
         }
 
         lintOptions {
             disable 'InvalidPackage'
+            tasks.lint.enabled = false
         }
     }
 
@@ -46,7 +48,9 @@ dependencies {
     implementation "com.firebaseui:firebase-ui-firestore:$firebaseUIVersion"
 
     // FirebaseUI for Firebase Auth
-    implementation "com.firebaseui:firebase-ui-auth:$firebaseUIVersion"
+    implementation("com.firebaseui:firebase-ui-auth:$firebaseUIVersion") {
+        exclude module: 'lintchecks'
+    }
 
     // FirebaseUI for Cloud Storage
     implementation "com.firebaseui:firebase-ui-storage:$firebaseUIVersion"

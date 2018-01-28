@@ -199,8 +199,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void startSignIn() {
         // Sign in with FirebaseUI
         Intent intent = AuthUI.getInstance().createSignInIntentBuilder()
-            .setAvailableProviders(Collections.singletonList(
-                new AuthUI.IdpConfig.Builder(AuthUI.EMAIL_PROVIDER).build()))
+            .setAvailableProviders(Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().build()))
             .setIsSmartLockEnabled(true)
             .setTheme(R.style.LoginTheme)
             .setLogo(R.mipmap.logo)

@@ -2,9 +2,7 @@
 
 const express = require('express')
 const constants = require('../shared/constants')
-const utils = require('../shared/utils')
 const HttpStatus = require('http-status-codes')
-const ApplicationError = require('../models/application-error')
 const FirebaseUtils = require('../shared/firebase-utils')
 const router = express.Router()
 
@@ -25,7 +23,7 @@ router.get('/:entityId', function (req, res, next) {
 })
 
 /**
- * Restore a booking and return to the respective queue.
+ * Return or archive the booking to the respective queue.
  * @public
  */
 router.delete('/:entityId/:queueId/:bookingId/:action', function (req, res, next) {
@@ -51,12 +49,41 @@ router.delete('/:entityId/:queueId/:bookingId/:action', function (req, res, next
     if (err != null) {
       res.status(err.statusCode).json(err)
     } else {
-      res.status(HttpStatus.NO_CONTENT).json(constants.HistoryChanged)
+      res.status(HttpStatus.OK).json(constants.HistoryUpdated)
     }
   }
 
-  // Delete the historical booking - return or archive
+  // Return or archive the historical booking
   FirebaseUtils.fireStore.deleteHistory(callback, action, entityId, queueId, bookingId)
+})
+
+/**
+ * Archive all historical bookings under this entity.
+ * @public
+ */
+router.delete('/:entityId/:action', function (req, res, next) {
+  // Get the entity id
+  const entityId = req.params.entityId
+
+  // Action - to "return" or "archive" all historical bookings
+  const action = req.params.action.toLowerCase()
+
+  // Validate the action - archive only
+  if (action !== constants.HistoryAction.archive) {
+    res.status(HttpStatus.BAD_REQUEST).json(constants.InvalidData)
+    return
+  }
+
+  let callback = (results = '', err = null) => {
+    if (err != null) {
+      res.status(err.statusCode).json(err)
+    } else {
+      res.status(HttpStatus.ACCEPTED).json(constants.BatchArchive)
+    }
+  }
+
+  // Return or archive the historical booking
+  FirebaseUtils.fireStore.archiveHistory(callback, action, entityId)
 })
 
 module.exports = router

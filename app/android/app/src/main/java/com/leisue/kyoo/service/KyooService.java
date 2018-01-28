@@ -66,7 +66,26 @@ public interface KyooService {
     @DELETE("/queue/{entityId}/{queueId}/{bookingId}/{action}")
     Call<String> deleteBooking(@Path("entityId") String entityId, @Path("queueId") String queueId, @Path("bookingId") String bookingId,  @Path("action") String action);
 
+    @GET("/queue/{entityId}/{queueId}")
+    Call<List<Booking>> getBookings(@Path("entityId") String entityId, @Path("queueId") String queueId);
+
+    @GET("/queue/{entityId}/{queueId}/count")
+    Call<Integer> getBookingsCount(@Path("entityId") String entityId, @Path("queueId") String queueId);
     // ---------- END queue related operation -----------------------//
+
+
+
+    // -------- BEGIN History operation ---------------------- //
+    @DELETE("/history/{entityId}/{queueId}/{bookingId}/{action}")
+    Call<String> returnHistory(@Path("entityId") String entityId, @Path("queueId") String queueId, @Path("bookingId") String bookingId,  @Path("action") String action);
+
+
+    @DELETE("/history/{entityId}/{action}")
+    Call<String> archiveHistory(@Path("entityId") String entityId, @Path("action") String action);
+    // -------- END History operation ---------------------- //
+
+
+
 
     // -------- BEGIN Lookup operation ---------------------- //
 
