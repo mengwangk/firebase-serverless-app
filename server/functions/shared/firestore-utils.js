@@ -115,11 +115,11 @@ const getDocByQuery = function (docRef, callback) {
   docRef.get().then((snapshot) => {
     if (snapshot.size <= 0) {
       callback(null, new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound))
-                /*
-                } else if (snapshot.size == 1) {
-                    var doc = snapshot.docs[0];
-                    callback(doc.data());
-                */
+    /*
+    } else if (snapshot.size == 1) {
+        var doc = snapshot.docs[0];
+        callback(doc.data());
+    */
     } else {
       var docList = []
       snapshot.forEach((doc) => {

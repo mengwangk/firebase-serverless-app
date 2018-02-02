@@ -1,6 +1,6 @@
 'use strict'
 
-const firebase = require('firebase-admin')
+const firebaseAdmin = require('firebase-admin')
 const firestoreUtils = require('./firestore-utils')
 const constants = require('./constants')
 const utils = require('./utils')
@@ -9,28 +9,67 @@ const ApplicationError = require('../models/application-error')
 const Entity = require('../models/entity')
 const History = require('../models/history')
 const Booking = require('../models/booking')
+const ArchiveSummary = require('../models/archive-summary')
 const Archive = require('../models/archive')
 
 /**
- * Firebase helper class.
+ * Auth helper class.
+ * @public
+ */
+const Auth = (function () {
+  var self = {}
+
+   /**
+   * Create a firebase user.
+   * Refer to https://stackoverflow.com/questions/47268411/create-users-server-side-firebase-functions
+   *
+   * @param {string} email Email.
+   * @param {string} password Password.
+   */
+  self.createUser = function (email, password) {
+    return firebaseAdmin.auth().createUser(
+      {
+        email: email,
+        password: password
+      }
+    )
+  }
+
+  return self
+})()
+
+/**
+ * Cloud storage helper class.
+ * @public
+ */
+const Storage = (function () {
+  var self = {}
+
+  /**
+   * Upload a file.
+   * https://cloud.google.com/nodejs/docs/reference/storage/1.5.x/Bucket
+   *
+   * @param {Object} entity Entity.
+   * @param {Object} file File object.
+   */
+  self.upload = function (entity, file) {
+    var bucket = firebaseAdmin.storage().bucket()
+    var options = {
+      destination: entity.avatar,
+      resumable: false
+    }
+    return bucket.upload(file.path, options)
+  }
+
+  return self
+})()
+
+/**
+ * Firestore helper class.
  * @public
  */
 const FireStore = (function () {
   var self = {}
-
-  /**
-   * Send all the bookings to history.
-   *
-   * @param {Object} colRef Collection reference.
-   * @param {number} batchSize Delete batch size.
-   * @private
-   */
-  const sendToHistory = function (colRef, entityId, queueId, batchSize = 100) {
-    const query = colRef.limit(batchSize)
-    return new Promise((resolve, reject) => {
-      batchUpdateBookingStatus(entityId, queueId, constants.BookingAction.remove, firebase.firestore(), query, batchSize, resolve, reject)
-    })
-  }
 
   /**
    * Creat a history booking object.
@@ -55,23 +94,40 @@ const FireStore = (function () {
    * @param {number} batchSize Delete batch size.
    * @private
    */
-  const sendToArchive = function (colRef, entityId, batchSize = 100) {
-    const query = colRef.limit(batchSize)
-    return new Promise((resolve, reject) => {
-      batchUpdateBookingStatus(entityId, '', constants.HistoryAction.archive, firebase.firestore(), query, batchSize, resolve, reject)
-    })
+  const archiveQueues = function (colRef, entityId) {
+    const BATCH_SIZE = constants.TransactionBatchSize
+    var queues = []
+    let callback = (results = '', err = null) => {
+      if (!err) {
+        queues = results
+        // Get all historical bookings
+        const historyColRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).limit(BATCH_SIZE)
+        const archiveSummary = new ArchiveSummary(0, 0, 0)
+
+        return new Promise((resolve, reject) => {
+          batchArchiveHistory(archiveSummary, entityId, queues, firebaseAdmin.firestore(), historyColRef, BATCH_SIZE, resolve, reject)
+        })
+      } else {
+        console.error(err)
+      }
+    }
+       // Get all existing queues
+    firestoreUtils.getCol(colRef, callback)
   }
 
   /**
-   * Creat a history booking object.
+   * Create a history booking object.
    *
    * @param {string} entityId Entity id.
+   * @param {Object} queues Queues lookup.
    * @param {Object} doc Document snapshot.
    * @param {string} status "Archived".
+   * @param {string} queueName Queue name
    */
-  const createArchiveBooking = function (entityId, doc, status) {
+  const createArchiveBooking = function (entityId, queues, doc, status, queueName) {
     const history = doc.data()
-    const archive = new Archive(status, history)
+    const queue = queues.filter(queue => queue.id === history.queueId)
+    const archive = new Archive(status, history, queue[0].name)
     var archiveData = JSON.stringify(archive)
     return JSON.parse(archiveData)
   }
@@ -79,9 +135,9 @@ const FireStore = (function () {
   /**
    * Delete the bookings and send to history.
    *
+   * @param {archiveSummary} Archive summmary object.
    * @param {string} entityId Entity id.
-   * @param {string} queueId Queue id.
-   * @param {string} action Batch remove or archive the bookings.
+   * @param {Object} queues List of queues.
    * @param {Object} db Firestore database.
    * @param {Object} query Query.
    * @param {number} batchSize Batch size.
@@ -89,28 +145,29 @@ const FireStore = (function () {
    * @param {function} reject Failure promise.
    * @private
    */
-  const batchUpdateBookingStatus = function (entityId, queueId, action, db, query, batchSize, resolve, reject) {
+  const batchArchiveHistory = function (archiveSummary, entityId, queues, db, query, batchSize, resolve, reject) {
     query.get().then((snapshot) => {
       // When there are no documents left, we are done
       if (snapshot.size === 0) {
         return 0
       }
-      // Delete documents in a batch
-      var batch = db.batch()
+      // Derive the summary for each batch
+      archiveSummary.totalBookings += snapshot.size
+      const maxDate = Math.max.apply(Math, snapshot.docs.map(function (o) { return o.data().bookedDate }))
+      const minDate = Math.min.apply(Math, snapshot.docs.map(function (o) { return o.data().bookedDate }))
+      if (maxDate > archiveSummary.toDate || archiveSummary.toDate === 0) archiveSummary.toDate = maxDate
+      if (minDate < archiveSummary.fromDate || archiveSummary.fromDate === 0) archiveSummary.fromDate = minDate
+
+      const batch = db.batch()
+      const archiveSummaryDocRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId)
+                                    .collection(constants.QueueCollection).doc(archiveSummary.id)
+      batch.set(archiveSummaryDocRef, JSON.parse(JSON.stringify(archiveSummary)))
       snapshot.docs.forEach((doc) => {
-        if (action === constants.BookingAction.remove) {
-          // Send to history
-          const booking = doc.data()
-          const historyBooking = createHistoryBooking(entityId, queueId, doc, constants.BookingStatus.removed)
-          const historyDocRef = firebase.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(booking.id)
-          batch.set(historyDocRef, historyBooking)
-        } else if (action === constants.HistoryAction.archive) {
-          // Send to archive
-          const history = doc.data()
-          const archiveBooking = createArchiveBooking(entityId, doc, constants.BookingStatus.archived)
-          const archiveDocRef = firebase.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).doc(history.id)
-          batch.set(archiveDocRef, archiveBooking)
-        }
+        // Send to archive
+        const history = doc.data()
+        const archiveBooking = createArchiveBooking(entityId, queues, doc, constants.BookingStatus.archived)
+        const historyDocDocRef = archiveSummaryDocRef.collection(constants.HistoryCollection).doc(history.id)
+        batch.set(historyDocDocRef, archiveBooking)
         batch.delete(doc.ref)
       })
 
@@ -125,7 +182,7 @@ const FireStore = (function () {
 
       // Recurse on the next process tick, to avoid exploding the stack.
       process.nextTick(() => {
-        batchUpdateBookingStatus(entityId, queueId, action, db, query, batchSize, resolve, reject)
+        batchArchiveHistory(archiveSummary, entityId, queues, db, query, batchSize, resolve, reject)
       })
     }).catch(reject)
   }
@@ -138,7 +195,7 @@ const FireStore = (function () {
    * @public
    */
   self.saveEntity = function (callback, entity) {
-    const docRef = firebase.firestore().collection(constants.EntityCollection).doc(entity.id)
+    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entity.id)
     firestoreUtils.saveDoc(docRef, entity, callback)
   }
 
@@ -151,7 +208,7 @@ const FireStore = (function () {
    * @public
    */
   self.saveQueue = function (callback, entityId, queue) {
-    const docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queue.id)
+    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queue.id)
     firestoreUtils.saveDoc(docRef, queue, callback)
   }
 
@@ -165,9 +222,9 @@ const FireStore = (function () {
    * @public
    */
   self.saveBooking = function (callback, entityId, queueId, booking) {
-    const queueDocRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-    const bookingDocRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(booking.id)
-    firebase.firestore().runTransaction(t => {
+    const queueDocRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+    const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(booking.id)
+    firebaseAdmin.firestore().runTransaction(t => {
       return t.get(queueDocRef).then(doc => {
         if (doc.exists) {
           if (!booking.bookingNo) {
@@ -203,11 +260,11 @@ const FireStore = (function () {
     var docRef = null
     if (entityId != null) {
       // Get a particular entity
-      docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId)
+      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId)
       firestoreUtils.getDoc(docRef, callback)
     } else {
       // Get all entities
-      docRef = firebase.firestore().collection(constants.EntityCollection)
+      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection)
       firestoreUtils.getCol(docRef, callback)
     }
   }
@@ -221,7 +278,7 @@ const FireStore = (function () {
    * @public
    */
   self.getEntitiesByEmail = function (callback, email) {
-    const docRef = firebase.firestore().collection(constants.EntityCollection).where(Entity.EMAIL_FIELD, '==', email)
+    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).where(Entity.EMAIL_FIELD, '==', email)
     firestoreUtils.getDocByQuery(docRef, callback)
   }
 
@@ -237,10 +294,10 @@ const FireStore = (function () {
   self.getQueues = function (callback, entityId, queueId = null) {
     var docRef = null
     if (queueId != null) {
-      docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
       firestoreUtils.getDoc(docRef, callback)
     } else {
-      docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection)
+      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection)
       firestoreUtils.getCol(docRef, callback)
     }
   }
@@ -255,8 +312,8 @@ const FireStore = (function () {
    * @public
    */
   self.getBookings = function (callback, entityId, queueId) {
-    const docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-    firestoreUtils.getCol(docRef, callback)
+    const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
+    firestoreUtils.getCol(colRef, callback)
   }
 
   /**
@@ -268,8 +325,8 @@ const FireStore = (function () {
    * @public
    */
   self.getBookingsCount = function (callback, entityId, queueId) {
-    const docRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-    firestoreUtils.getColCount(docRef, callback)
+    const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
+    firestoreUtils.getColCount(colRef, callback)
   }
 
   /**
@@ -283,9 +340,9 @@ const FireStore = (function () {
    * @public
    */
   self.deleteBooking = function (callback, action, entityId, queueId, bookingId) {
-    const bookingDocRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
-    const historyDocRef = firebase.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
-    firebase.firestore().runTransaction(t => {
+    const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
+    const historyDocRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
+    firebaseAdmin.firestore().runTransaction(t => {
       return t.get(bookingDocRef).then(doc => {
         if (doc.exists) {
           // Save to history
@@ -310,6 +367,7 @@ const FireStore = (function () {
 
   /**
    * Clear a queue and reset the counter.
+   * The bookings will be permanently deleted (NOT in history or archive).
    *
    * @param {function} callback Call back function.
    * @param {string} entityId Entity id.
@@ -319,11 +377,11 @@ const FireStore = (function () {
   self.clearQueue = function (callback, entityId, queueId) {
     try {
       // Delete the queue collection
-      const colRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-      sendToHistory(colRef, entityId, queueId)
+      const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
+      firestoreUtils.deleteCol(colRef)
 
       // Reset the queue counter
-      const docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+      const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
       docRef.update({ counter: 0 }).then(() => {
         callback()
       }).catch((err) => {
@@ -335,7 +393,7 @@ const FireStore = (function () {
   }
 
   /**
-   * Delete a queue.
+   * Delete a queue. The queue and history MUST be empty. Action cannot be recovered.
    *
    * @param {function} callback Callback function.
    * @param {string} entityId Entity id.
@@ -344,13 +402,40 @@ const FireStore = (function () {
    */
   self.deleteQueue = function (callback, entityId, queueId) {
     try {
-      // Clear the queue
-      const colRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-      sendToHistory(colRef, entityId, queueId)
+      const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
+      const historyColRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).where(History.QUEUE_ID_FIELD, '==', queueId)
 
-      // Delete the queue
-      const docRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-      firestoreUtils.deleteDoc(docRef, callback)
+      let step1 = (results = '', err = null) => {
+        if (err != null) {
+          callback(results, err)
+        } else {
+          if (results === 0) {
+            // Queue is empty, check history queue
+            firestoreUtils.getColCount(historyColRef, step2)
+          } else {
+            // Throw error - queue is not empty
+            callback(null, new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.QueueNotEmpty, 'Path: {0}'.format(colRef.path)))
+          }
+        }
+      }
+
+      let step2 = (results = '', err = null) => {
+        if (err != null) {
+          callback(results, err)
+        } else {
+          if (results === 0) {
+            // History queue is empty, proceed to delete
+            const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+            firestoreUtils.deleteDoc(docRef, callback)
+          } else {
+            // Throw error - queue is not empty
+            callback(null, new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.HistoryNotEmpty, 'Path: {0}'.format(historyColRef.path)))
+          }
+        }
+      }
+
+      // Checking existing queue count
+      firestoreUtils.getColCount(colRef, step1)
     } catch (err) {
       callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
     }
@@ -366,10 +451,10 @@ const FireStore = (function () {
   self.getLookup = function (callback, lookupType) {
     var docRef = null
     if (lookupType) {
-      docRef = firebase.firestore().collection(constants.LookupCollection).doc(lookupType)
+      docRef = firebaseAdmin.firestore().collection(constants.LookupCollection).doc(lookupType)
       firestoreUtils.getDoc(docRef, callback)
     } else {
-      docRef = firebase.firestore().collection(constants.LookupCollection)
+      docRef = firebaseAdmin.firestore().collection(constants.LookupCollection)
       firestoreUtils.getCol(docRef, callback)
     }
   }
@@ -383,7 +468,7 @@ const FireStore = (function () {
    * @public
    */
   self.getHistories = function (callback, entityId) {
-    const colRef = firebase.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection)
+    const colRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection)
     // .orderBy(Booking.BOOKED_DATE_FIELD ,'desc')
     firestoreUtils.getCol(colRef, callback)
   }
@@ -392,21 +477,21 @@ const FireStore = (function () {
    * Return a particular booking from history.
    *
    * @param {function} callback Call back function.
-   * @param {string} action Return or archive the booking.
+   * @param {string} action Return the booking.
    * @param {string} entityId Entity id.
    * @param {string} queueId Queue id.
    * @param {string} bookingId Booking id.
    * @public
    */
-  self.deleteHistory = function (callback, action, entityId, queueId, bookingId) {
+  self.returnHistory = function (callback, action, entityId, queueId, bookingId) {
     let transactionHandler = (results = '', err = null) => {
       if (err != null) {
         callback(results, err)
       } else {
         // Proceed to return or achive the booking
-        const bookingDocRef = firebase.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
-        const historyDocRef = firebase.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
-        firebase.firestore().runTransaction(t => {
+        const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
+        const historyDocRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
+        firebaseAdmin.firestore().runTransaction(t => {
           return t.get(historyDocRef).then(historyDoc => {
             if (historyDoc.exists) {
               const history = historyDoc.data()
@@ -415,8 +500,6 @@ const FireStore = (function () {
                 const booking = new Booking(history.name, history.contactNo, history.noOfSeats, history.id, history.bookingNo, history.bookedDate)
                 const bookingData = JSON.stringify(booking)
                 t.set(bookingDocRef, JSON.parse(bookingData))
-              } else {
-                // TODO archive the history - not required now for individual booking
               }
               // Delete the history
               t.delete(historyDocRef)
@@ -434,32 +517,46 @@ const FireStore = (function () {
     }
 
     // Check if the queue exists
-    const queueDocRef = firebase.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+    const queueDocRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
     firestoreUtils.getDoc(queueDocRef, transactionHandler)
   }
 
   /**
-   * Archive the historical bookings.
+   * Archive the historical bookings for an entity.
    *
    * @param {function} callback Callback function.
-   * @param {string} action "archive".
    * @param {string} entityId Entity id.
    * @public
    */
-  self.archiveHistory = function (callback, action, entityId) {
+  self.archiveHistory = function (callback, entityId) {
     try {
-      // Archive the historical queue
-      const colRef = firebase.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection)
-      sendToArchive(colRef, entityId)
+      // Get all active queues, and archive all their histories
+      const colRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection)
+      archiveQueues(colRef, entityId)
       callback()
     } catch (err) {
       callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
     }
   }
 
+   /**
+   * Get archives for an entity.
+   *
+   * @param {function} callback Call back function.
+   * @param {string} entityId Entity id.
+   * @returns {Object} List of archives.
+   * @public
+   */
+  self.getArchives = function (callback, entityId, queueId) {
+    const colRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).orderBy(ArchiveSummary.FROM_DATE_FIELD, 'desc')
+    firestoreUtils.getCol(colRef, callback)
+  }
+
   return self
 })()
 
 module.exports = {
-  fireStore: FireStore
+  fireStore: FireStore,
+  auth: Auth,
+  storage: Storage
 }

@@ -102,6 +102,9 @@ public abstract class BaseActivity extends AppCompatActivity {
                     case R.id.menu_item_queue:
                         launchActivity(MainActivity.class);
                         break;
+                    case R.id.menu_item_archives:
+                        launchActivity(ArchiveActivity.class);
+                        break;
                     case R.id.menu_item_settings:
                         launchActivity(SettingsActivity.class);
                         break;

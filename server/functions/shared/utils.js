@@ -1,5 +1,8 @@
 'use strict'
 
+const config = require('../env.json')[process.env.NODE_ENV || 'development']
+const constants = require('./constants')
+
 /**
  * Queue counter helper.
  * @public
@@ -56,7 +59,46 @@ const Mapper = (function () {
   return self
 })()
 
+/**
+ * Upload helper.
+ * @public
+ */
+const Upload = (function () {
+  var self = {}
+
+  /**
+   * Check if file size has exceeded the limit.
+   *
+   * @param {number} size File size in KB.
+   */
+  self.hasExceedMaxAllowedSize = function (size) {
+    return (size / 1024) >= constants.MaxFileSize
+  }
+
+  /**
+   * Check if file type is allowed
+   *
+   * @param {string} size File size in KB.
+   */
+  self.isFileTypeAllowed = function (name) {
+    return name.match(constants.AllowedImageTypes)
+  }
+
+  /**
+   * Create the storage reference.
+   *
+   * @param {Object} entity Entity.
+   * @param {Object} file Avatar file.
+   */
+  self.createStoragePath = function (entity, file) {
+    return '/' + config.app_name + '/' + entity.id + '/' + file.name
+  }
+
+  return self
+})()
+
 module.exports = {
   Counter: Counter,
-  Mapper: Mapper
+  Mapper: Mapper,
+  Upload: Upload
 }

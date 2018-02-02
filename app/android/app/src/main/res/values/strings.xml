@@ -9,12 +9,14 @@
     <string name="action_save_to_archive">Save to Archive</string>
 
     <string name="queue_list">Queue List</string>
+    <string name="queue_config">Queue Configuration</string>
     <string name="header_booking">Booking</string>
     <string name="header_entity">Entity</string>
     <string name="header_queue">Queue</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="apply">Apply</string>
+    <string name="create_user">Create New User</string>
     <string name="configure_queue">Queue Configuration</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>

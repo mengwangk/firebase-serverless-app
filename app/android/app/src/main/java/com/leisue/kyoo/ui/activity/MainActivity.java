@@ -91,7 +91,7 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
         setHeaderView();
 
         // Testing
-        //startActivity(new Intent(this, QueueListActivity.class));
+        //launchActivity(SettingsActivity.class);
     }
 
     private void setupQueues(final List<Queue> queues) {
@@ -149,7 +149,7 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
                 } else {
                     // handle request errors depending on status code
                     int statusCode = response.code();
-                    Snackbar.make(findViewById(android.R.id.content), KyooApp.getContext().getString(R.string.message_history_archive_error_status_code, statusCode), Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(findViewById(android.R.id.content), getString(R.string.message_history_archive_error_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                 }
             }
 

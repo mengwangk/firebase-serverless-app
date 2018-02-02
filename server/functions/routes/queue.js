@@ -156,7 +156,7 @@ router.delete('/:entityId/:queueId/:bookingId/:action', function (req, res, next
 
   // Validate the action
   if (action !== constants.BookingAction.remove && action !== constants.BookingAction.done) {
-    res.status(HttpStatus.BAD_REQUEST).json(constants.InvalidData)
+    res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData))
     return
   }
 

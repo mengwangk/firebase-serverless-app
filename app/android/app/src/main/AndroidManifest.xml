@@ -22,8 +22,16 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.activity.SettingsActivity"></activity>
-        <activity android:name=".ui.activity.QueueConfigActivity"></activity>
+        <activity
+            android:name=".ui.activity.SettingsActivity"
+            android:label="@string/action_settings" />
+        <activity
+            android:name=".ui.activity.ArchiveActivity"
+            android:label="@string/action_archives" />
+        <activity
+            android:name=".ui.activity.QueueConfigActivity"
+            android:label="@string/queue_config" />
+
         <activity
             android:name=".ui.activity.QueueListActivity"
             android:label="@string/queue_list"

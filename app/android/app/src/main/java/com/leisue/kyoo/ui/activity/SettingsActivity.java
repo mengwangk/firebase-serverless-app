@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
 import com.leisue.kyoo.GlideApp;
 import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.R;
@@ -39,6 +40,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import pub.devrel.easypermissions.AfterPermissionGranted;
 import pub.devrel.easypermissions.AppSettingsDialog;
 import pub.devrel.easypermissions.EasyPermissions;
@@ -88,6 +92,8 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
     private static final int THUMBNAIL_SIZE = 200;
     private static final String AVATAR_FILE_NAME = "avatar.png";
 
+    Uri selectedImage = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,7 +120,7 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
 
         if (requestCode == RC_CHOOSE_PHOTO) {
             if (resultCode == RESULT_OK) {
-                Uri selectedImage = data.getData();
+                selectedImage = data.getData();
                 uploadPhoto(selectedImage);
             } else {
                 Snackbar.make(findViewById(android.R.id.content), R.string.message_no_photo_chosen, Snackbar.LENGTH_LONG).show();
@@ -302,4 +308,54 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
         return baos.toByteArray();
     }
+
+
+    @OnClick(R.id.button_create_user)
+    public void onCreateNewUser() {
+        Log.i(TAG, "Create a new user");
+
+        // Update the entity details
+        final Entity entity = new Entity();
+        entity.setEmail("upload_user123@gmail.com");
+        entity.setName("test user");
+        entity.setIndustry(entityIndustry.getSelectedItem().toString());
+        // Proceed to set other values as well
+
+        final EntityRequest entityRequest = new EntityRequest(entity, "password123");       // Set the password
+        try {
+            if (this.selectedImage != null) {   // Assume a photo is selected
+                byte[] imageBytes = resizeBitmap(this.selectedImage);
+                RequestBody reqFile = RequestBody.create(MediaType.parse("image/png"), imageBytes);
+                MultipartBody.Part avatar = MultipartBody.Part.createFormData("avatar", AVATAR_FILE_NAME, reqFile); // DO not change the name
+
+                RequestBody reqEntity = RequestBody.create(okhttp3.MultipartBody.FORM, new Gson().toJson(entityRequest));
+                KyooApp.getApiService().createUserAndEntity(reqEntity, avatar).enqueue(new Callback<Entity>() {
+                    @Override
+                    public void onResponse(Call<Entity> call, Response<Entity> response) {
+                        if (response.isSuccessful()) {
+                            final Entity entity = response.body();
+                            KyooApp.getInstance(SettingsActivity.this).setEntity(entity);
+                            setHeaderView();
+                            Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configured, Snackbar.LENGTH_LONG).show();
+                        } else {
+                            // handle request errors depending on status code
+                            int statusCode = response.code();
+                            Snackbar.make(findViewById(android.R.id.content), getString(R.string.message_entity_configure_status_code, statusCode), Snackbar.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Entity> call, Throwable t) {
+                        Log.e(TAG, "Unable to update entity", t);
+                        Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configure_error, Snackbar.LENGTH_LONG).show();
+                    }
+                });
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Unable to create entity", e);
+            Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configure_error, Snackbar.LENGTH_LONG).show();
+        }
+
+    }
+
 }

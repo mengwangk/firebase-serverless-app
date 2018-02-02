@@ -10,11 +10,19 @@ const Booking = require('./booking')
  */
 class History extends Booking {
   /**
-   * Booked date field name.
+   * History date field name.
    * @public
    */
   static get HISTORY_DATE_FIELD () {
     return 'historyDate'
+  }
+
+  /**
+   * Queue id field name.
+   * @public
+   */
+  static get QUEUE_ID_FIELD () {
+    return 'queueId'
   }
 
   /**

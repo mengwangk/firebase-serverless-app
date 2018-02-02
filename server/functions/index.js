@@ -1,10 +1,12 @@
 'use strict'
 
+const config = require('./env.json')[process.env.NODE_ENV || 'development']
 const functions = require('firebase-functions')
 const admin = require('firebase-admin')
 const express = require('express')
 const engines = require('consolidate')
 const path = require('path')
+const fs = require('fs')
 const cookieParser = require('cookie-parser')
 const bodyParser = require('body-parser')
 const HttpStatus = require('http-status-codes')
@@ -20,7 +22,13 @@ const archive = require('./routes/archive')
 const app = express()
 
 // Call ONCE only during start-up
-admin.initializeApp(functions.config().firebase)
+var serviceAccount = JSON.parse(fs.readFileSync(path.join(__dirname, config.service_account), { encoding: 'utf8' }))
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: config.database_url,
+  storageBucket: config.storage_bucket
+})
+// admin.initializeApp(functions.config().firebase)
 
 // Express middleware that validates Firebase ID Tokens passed in the Authorization HTTP header.
 // The Firebase ID token needs to be passed as a Bearer token in the Authorization HTTP header like this:
