@@ -28,6 +28,7 @@ import com.google.gson.Gson;
 import com.leisue.kyoo.GlideApp;
 import com.leisue.kyoo.KyooApp;
 import com.leisue.kyoo.R;
+import com.leisue.kyoo.model.CreateUserRequest;
 import com.leisue.kyoo.model.Entity;
 import com.leisue.kyoo.model.EntityRequest;
 import com.leisue.kyoo.model.Lookup;
@@ -321,14 +322,13 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
         entity.setIndustry(entityIndustry.getSelectedItem().toString());
         // Proceed to set other values as well
 
-        final EntityRequest entityRequest = new EntityRequest(entity, "password123");       // Set the password
+        final CreateUserRequest createUserRequest = new CreateUserRequest(entity, "password123");       // Set the password
         try {
             if (this.selectedImage != null) {   // Assume a photo is selected
                 byte[] imageBytes = resizeBitmap(this.selectedImage);
                 RequestBody reqFile = RequestBody.create(MediaType.parse("image/png"), imageBytes);
                 MultipartBody.Part avatar = MultipartBody.Part.createFormData("avatar", AVATAR_FILE_NAME, reqFile); // DO not change the name
-
-                RequestBody reqEntity = RequestBody.create(okhttp3.MultipartBody.FORM, new Gson().toJson(entityRequest));
+                RequestBody reqEntity = RequestBody.create(okhttp3.MultipartBody.FORM, new Gson().toJson(createUserRequest));
                 KyooApp.getApiService().createUserAndEntity(reqEntity, avatar).enqueue(new Callback<Entity>() {
                     @Override
                     public void onResponse(Call<Entity> call, Response<Entity> response) {
@@ -339,6 +339,8 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
                             Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configured, Snackbar.LENGTH_LONG).show();
                         } else {
                             // handle request errors depending on status code
+                            Log.e(TAG, "Raw : " + response.raw().toString());
+                            Log.e(TAG, "Error body: " + response.errorBody().toString());
                             int statusCode = response.code();
                             Snackbar.make(findViewById(android.R.id.content), getString(R.string.message_entity_configure_status_code, statusCode), Snackbar.LENGTH_LONG).show();
                         }
@@ -352,7 +354,7 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
                 });
             }
         } catch (Exception e) {
-            Log.e(TAG, "Unable to create entity", e);
+            Log.e(TAG, "Unable to create user", e);
             Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configure_error, Snackbar.LENGTH_LONG).show();
         }
 

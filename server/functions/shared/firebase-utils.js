@@ -378,7 +378,7 @@ const FireStore = (function () {
     try {
       // Delete the queue collection
       const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-      firestoreUtils.deleteCol(colRef)
+      firestoreUtils.deleteCollection(colRef)
 
       // Reset the queue counter
       const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
@@ -538,17 +538,66 @@ const FireStore = (function () {
     }
   }
 
-   /**
-   * Get archives for an entity.
+  /**
+   * Get archive summaries for an entity.
    *
-   * @param {function} callback Call back function.
    * @param {string} entityId Entity id.
    * @returns {Object} List of archives.
    * @public
    */
-  self.getArchives = function (callback, entityId, queueId) {
+  self.getArchives = function (entityId) {
     const colRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).orderBy(ArchiveSummary.FROM_DATE_FIELD, 'desc')
-    firestoreUtils.getCol(colRef, callback)
+    return firestoreUtils.getCollection(colRef)
+  }
+
+  /**
+   * Get particular archive details for an entity.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} archiveId Archive id.
+   * @returns {Object} List of archives.
+   * @public
+   */
+  self.getArchive = function (entityId, archiveId) {
+    const colRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId)
+                      .collection(constants.QueueCollection).doc(archiveId).collection(constants.HistoryCollection).orderBy(History.HISTORY_DATE_FIELD, 'desc')
+    return firestoreUtils.getCollection(colRef)
+  }
+
+   /**
+   * Delete archives for an entity.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} archiveId List of comma separated archive ids.
+   * @public
+   */
+  self.deleteArchives = function (entityId, archiveIds) {
+    const idList = archiveIds.split(',')
+    return new Promise((resolve, reject) => {
+      idList.forEach(function (id) {
+        // Delete archive summary
+        const docRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).doc(id)
+        firestoreUtils.deleteDocument(docRef)
+
+        // Delete archived history
+        const colRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).doc(id).collection(constants.HistoryCollection)
+        firestoreUtils.deleteCollection(colRef)
+      })
+      resolve()
+    }).then(() => {
+    }).catch((err) => {
+      return err
+    })
+  }
+
+   /**
+   * Delete all archives for an entity.
+   *
+   * @param {string} entityId Entity id.
+   * @public
+   */
+  self.deleteAllArchives = function (entityId) {
+      // TODO
   }
 
   return self

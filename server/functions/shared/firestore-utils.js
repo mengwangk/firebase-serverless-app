@@ -33,12 +33,12 @@ const saveDoc = function (docRef, obj, callback = null) {
 }
 
 /**
-   * Delete a document.
-   *
-   * @param {Object} docRef Document reference.
-   * @param {function} callback Call back function.
-   * @private
-   */
+ * Delete a document.
+ *
+ * @param {Object} docRef Document reference.
+ * @param {function} callback Call back function.
+ * @private
+ */
 const deleteDoc = function (docRef, callback = null) {
   if (callback) {
     docRef.delete().then(() => {
@@ -49,59 +49,6 @@ const deleteDoc = function (docRef, callback = null) {
   } else {
     docRef.delete()
   }
-}
-
-  /**
-   * Delete a collection.
-   *
-   * @param {Object} colRef Collection reference.
-   * @param {number} batchSize Delete batch size.
-   * @private
-   */
-const deleteCol = function (colRef, batchSize = 100) {
-  const query = colRef.limit(batchSize)
-  return new Promise((resolve, reject) => {
-    deleteBatch(firebase.firestore(), query, batchSize, resolve, reject)
-  })
-}
-
-/**
- * Delete documents in batch.
- *
- * @param {Object} db Firestore database.
- * @param {Object} query Query.
- * @param {number} batchSize Batch size.
- * @param {function} resolve Success promise.
- * @param {function} reject Failure promise.
- * @private
- */
-const deleteBatch = function (db, query, batchSize, resolve, reject) {
-  query.get().then((snapshot) => {
-    // When there are no documents left, we are done
-    if (snapshot.size === 0) {
-      return 0
-    }
-
-    // Delete documents in a batch
-    var batch = db.batch()
-    snapshot.docs.forEach((doc) => {
-      batch.delete(doc.ref)
-    })
-
-    return batch.commit().then(() => {
-      return snapshot.size
-    })
-  }).then((numDeleted) => {
-    if (numDeleted === 0) {
-      resolve()
-      return
-    }
-
-    // Recurse on the next process tick, to avoid exploding the stack.
-    process.nextTick(() => {
-      deleteBatch(db, query, batchSize, resolve, reject)
-    })
-  }).catch(reject)
 }
 
 /**
@@ -192,6 +139,45 @@ const getColCount = function (docRef, callback) {
 // ----------------------------- Promise based functions  ------------------------------------------ //
 
 /**
+ * Delete documents in batch.
+ *
+ * @param {Object} db Firestore database.
+ * @param {Object} query Query.
+ * @param {number} batchSize Batch size.
+ * @param {function} resolve Success promise.
+ * @param {function} reject Failure promise.
+ * @private
+ */
+const deleteBatch = function (db, query, batchSize, resolve, reject) {
+  query.get().then((snapshot) => {
+    // When there are no documents left, we are done
+    if (snapshot.size === 0) {
+      return 0
+    }
+
+    // Delete documents in a batch
+    var batch = db.batch()
+    snapshot.docs.forEach((doc) => {
+      batch.delete(doc.ref)
+    })
+
+    return batch.commit().then(() => {
+      return snapshot.size
+    })
+  }).then((numDeleted) => {
+    if (numDeleted === 0) {
+      resolve()
+      return
+    }
+
+    // Recurse on the next process tick, to avoid exploding the stack.
+    process.nextTick(() => {
+      deleteBatch(db, query, batchSize, resolve, reject)
+    })
+  }).catch(reject)
+}
+
+/**
  * Get a document.
  *
  * @param {Object} docRef Document reference.
@@ -241,17 +227,51 @@ const getCollection = function (docRef) {
   })
 }
 
+/**
+ * Delete a collection.
+ *
+ * @param {Object} colRef Collection reference.
+ * @param {number} batchSize Delete batch size.
+ * @private
+ */
+const deleteCollection = function (colRef, batchSize = 100) {
+  const query = colRef.limit(batchSize)
+  return new Promise((resolve, reject) => {
+    deleteBatch(firebase.firestore(), query, batchSize, resolve, reject)
+  })
+}
+
+/**
+ * Delete a document.
+ *
+ * @param {Object} docRef Document reference.
+ * @private
+ */
+const deleteDocument = function (docRef) {
+  return new Promise((resolve, reject) => {
+    docRef.delete().then(() => {
+      resolve()
+    }).catch((err) => {
+      reject(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+    })
+  }).then(() => {
+
+  }).catch((err) => {
+    return err
+  })
+}
+
 module.exports = {
   getDoc: getDoc,
   getCol: getCol,
   saveDoc: saveDoc,
   deleteDoc: deleteDoc,
-  deleteCol: deleteCol,
   getDocByQuery: getDocByQuery,
   getColCount: getColCount,
 
   // Promise based functions
   getDocument: getDocument,
-  getCollection: getCollection
-
+  getCollection: getCollection,
+  deleteCollection: deleteCollection,
+  deleteDocument: deleteDocument
 }

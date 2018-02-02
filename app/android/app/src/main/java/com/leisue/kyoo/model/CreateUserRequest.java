@@ -4,20 +4,22 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
- * Booking request.
+ * Request to create user.
  */
 
-public class EntityRequest {
+public class CreateUserRequest {
 
     @SerializedName("entity")
     @Expose
     public final Entity entity;
 
+    @SerializedName("password")
+    @Expose
+    public String password;
 
-    public EntityRequest(Entity entity) {
+
+    public CreateUserRequest(Entity entity, String password) {
         this.entity = entity;
+        this.password = password;
     }
-
-
 }
-
