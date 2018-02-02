@@ -261,6 +261,79 @@ const deleteDocument = function (docRef) {
   })
 }
 
+/**
+ * Get a list of objects from a query document reference.
+ *
+ * @param {Object} docRef Document reference.
+ * @returns {Object} List of found objects.
+ * @private
+ */
+const getDocumentByQuery = function (docRef) {
+  return new Promise((resolve, reject) => {
+    docRef.get().then((snapshot) => {
+      if (snapshot.size <= 0) {
+        reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(docRef.path)))
+      } else {
+        var docList = []
+        snapshot.forEach((doc) => {
+          docList.push(doc.data())
+        })
+        resolve(docList)
+      }
+    }).catch((err) => {
+      reject(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+    })
+  }).then((results) => {
+    return results
+  }).catch((err) => {
+    return err
+  })
+}
+
+/**
+ * Save a document.
+ *
+ * @param {Object} docRef Document reference.
+ * @param {Object} obj Object to save.
+ * @returns {Object} Saved object.
+ * @private
+ */
+const saveDocument = function (docRef, obj) {
+  const docData = JSON.stringify(obj)
+  return new Promise((resolve, reject) => {
+    docRef.set(JSON.parse(docData), { merge: true }).then(() => {
+      resolve(obj)
+    }).catch((err) => {
+      reject(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+    })
+  }).then((results) => {
+    return results
+  }).catch((err) => {
+    return err
+  })
+}
+
+/**
+ * Get collection count.
+ *
+ * @param {Object} docRef Document reference.
+ * @returns {Object} Count of documents.
+ * @private
+ */
+const getCollectionCount = function (docRef) {
+  return new Promise((resolve, reject) => {
+    docRef.get().then((snapshot) => {
+      resolve(snapshot.size)
+    }).catch((err) => {
+      reject(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+    })
+  }).then((results) => {
+    return results
+  }).catch((err) => {
+    return err
+  })
+}
+
 module.exports = {
   getDoc: getDoc,
   getCol: getCol,
@@ -273,5 +346,8 @@ module.exports = {
   getDocument: getDocument,
   getCollection: getCollection,
   deleteCollection: deleteCollection,
-  deleteDocument: deleteDocument
+  deleteDocument: deleteDocument,
+  getDocumentByQuery: getDocumentByQuery,
+  saveDocument: saveDocument,
+  getCollectionCount: getCollectionCount
 }

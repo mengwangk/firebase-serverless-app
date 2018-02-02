@@ -188,31 +188,6 @@ const FireStore = (function () {
   }
 
   /**
-   * Save a entity.
-   *
-   * @param {function} callback Call back function.
-   * @param {Object} entity Entity to save.
-   * @public
-   */
-  self.saveEntity = function (callback, entity) {
-    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entity.id)
-    firestoreUtils.saveDoc(docRef, entity, callback)
-  }
-
-  /**
-   * Save a queue.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} entityId Entity id.
-   * @param {Object} queue Queue to save.
-   * @public
-   */
-  self.saveQueue = function (callback, entityId, queue) {
-    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queue.id)
-    firestoreUtils.saveDoc(docRef, queue, callback)
-  }
-
-  /**
    * Save a booking.
    *
    * @param {function} callback Call back function.
@@ -246,60 +221,6 @@ const FireStore = (function () {
     }).catch(err => {
       callback(null, err)
     })
-  }
-
-  /**
-   * Get a particular entity or a list of entities.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} entityId Optional entity id.
-   * @returns {Object} Entity or list of entities.
-   * @public
-   */
-  self.getEntities = function (callback, entityId = null) {
-    var docRef = null
-    if (entityId != null) {
-      // Get a particular entity
-      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId)
-      firestoreUtils.getDoc(docRef, callback)
-    } else {
-      // Get all entities
-      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection)
-      firestoreUtils.getCol(docRef, callback)
-    }
-  }
-
-  /**
-   * Get list of entities by email. By design it should return only 1.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} email Email.
-   * @returns {Object} List of entities.
-   * @public
-   */
-  self.getEntitiesByEmail = function (callback, email) {
-    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).where(Entity.EMAIL_FIELD, '==', email)
-    firestoreUtils.getDocByQuery(docRef, callback)
-  }
-
-  /**
-   * Get a particular queue or list of queues.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} entityId Entity id.
-   * @param {string} queueId Optional queue id.
-   * @returns {Object} Queue or list of queues.
-   * @public
-   */
-  self.getQueues = function (callback, entityId, queueId = null) {
-    var docRef = null
-    if (queueId != null) {
-      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-      firestoreUtils.getDoc(docRef, callback)
-    } else {
-      docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection)
-      firestoreUtils.getCol(docRef, callback)
-    }
   }
 
   /**
@@ -393,72 +314,6 @@ const FireStore = (function () {
   }
 
   /**
-   * Delete a queue. The queue and history MUST be empty. Action cannot be recovered.
-   *
-   * @param {function} callback Callback function.
-   * @param {string} entityId Entity id.
-   * @param {string} queueId Queue id.
-   * @public
-   */
-  self.deleteQueue = function (callback, entityId, queueId) {
-    try {
-      const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-      const historyColRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).where(History.QUEUE_ID_FIELD, '==', queueId)
-
-      let step1 = (results = '', err = null) => {
-        if (err != null) {
-          callback(results, err)
-        } else {
-          if (results === 0) {
-            // Queue is empty, check history queue
-            firestoreUtils.getColCount(historyColRef, step2)
-          } else {
-            // Throw error - queue is not empty
-            callback(null, new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.QueueNotEmpty, 'Path: {0}'.format(colRef.path)))
-          }
-        }
-      }
-
-      let step2 = (results = '', err = null) => {
-        if (err != null) {
-          callback(results, err)
-        } else {
-          if (results === 0) {
-            // History queue is empty, proceed to delete
-            const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-            firestoreUtils.deleteDoc(docRef, callback)
-          } else {
-            // Throw error - queue is not empty
-            callback(null, new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.HistoryNotEmpty, 'Path: {0}'.format(historyColRef.path)))
-          }
-        }
-      }
-
-      // Checking existing queue count
-      firestoreUtils.getColCount(colRef, step1)
-    } catch (err) {
-      callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
-    }
-  }
-
-  /**
-   * Get lookup data.
-   *
-   * @param {string} lookupType Optional lookup type.
-   * @returns {Object} The lookup data.
-   */
-  self.getLookup = function (lookupType = null) {
-    var docRef = null
-    if (lookupType) {
-      docRef = firebaseAdmin.firestore().collection(constants.LookupCollection).doc(lookupType)
-      return firestoreUtils.getDocument(docRef)
-    } else {
-      docRef = firebaseAdmin.firestore().collection(constants.LookupCollection)
-      return firestoreUtils.getCollection(docRef)
-    }
-  }
-
-  /**
    * Get historical bookings for a particular entity.
    *
    * @param {function} callback Call back function.
@@ -535,6 +390,138 @@ const FireStore = (function () {
       callback()
     } catch (err) {
       callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+    }
+  }
+
+  // ----------------------------- Promise based functions  ------------------------------------------ //
+
+  /**
+   * Get lookup data.
+   *
+   * @param {string} lookupType Optional lookup type.
+   * @returns {Object} The lookup data.
+   */
+  self.getLookup = function (lookupType = null) {
+    var docRef = null
+    if (lookupType) {
+      docRef = firebaseAdmin.firestore().collection(constants.LookupCollection).doc(lookupType)
+      return firestoreUtils.getDocument(docRef)
+    } else {
+      docRef = firebaseAdmin.firestore().collection(constants.LookupCollection)
+      return firestoreUtils.getCollection(docRef)
+    }
+  }
+
+  /**
+   * Get a particular entity or a list of entities.
+   *
+   * @param {string} entityId Optional entity id.
+   * @returns {Object} Entity or list of entities.
+   * @public
+   */
+  self.getEntities = function (entityId = null) {
+    if (entityId != null) {
+      // Get a particular entity
+      const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId)
+      return firestoreUtils.getDocument(docRef)
+    } else {
+      // Get all entities
+      const colRef = firebaseAdmin.firestore().collection(constants.EntityCollection)
+      return firestoreUtils.getCollection(colRef)
+    }
+  }
+
+  /**
+   * Get list of entities by email. By design it should return only 1.
+   *
+   * @param {string} email Email.
+   * @returns {Object} List of entities.
+   * @public
+   */
+  self.getEntitiesByEmail = function (email) {
+    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).where(Entity.EMAIL_FIELD, '==', email)
+    return firestoreUtils.getDocumentByQuery(docRef)
+  }
+
+ /**
+  * Save a entity.
+  *
+  * @param {Object} entity Entity to save.
+  * @public
+  */
+  self.saveEntity = function (entity) {
+    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entity.id)
+    return firestoreUtils.saveDocument(docRef, entity)
+  }
+
+  /**
+   * Save a queue.
+   *
+   * @param {string} entityId Entity id.
+   * @param {Object} queue Queue to save.
+   * @public
+   */
+  self.saveQueue = function (entityId, queue) {
+    const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queue.id)
+    return firestoreUtils.saveDocument(docRef, queue)
+  }
+
+  /**
+   * Delete a queue. The queue and history MUST be empty. Action cannot be recovered.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} queueId Queue id.
+   * @public
+   */
+  self.deleteQueue = function (entityId, queueId) {
+    const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
+    const historyColRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).where(History.QUEUE_ID_FIELD, '==', queueId)
+    return new Promise((resolve, reject) => {
+      firestoreUtils.getCollectionCount(colRef).then((documentCount) => {
+        if (documentCount === 0) {
+          // Queue is empty, check history queue
+          firestoreUtils.getCollectionCount(historyColRef).then((historyCount) => {
+            if (historyCount === 0) {
+              // History queue is empty, proceed to delete
+              const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+              console.log('DELETE THE DOC')
+              return firestoreUtils.deleteDocument(docRef)
+            } else {
+              // Throw error - history queue is not empty
+              reject(new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.HistoryNotEmpty, 'Path: {0}'.format(historyColRef.path)))
+            }
+          }).catch((err) => {
+            reject(err)
+          })
+        } else {
+          // Throw error - queue is not empty
+          reject(new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.QueueNotEmpty, 'Path: {0}'.format(colRef.path)))
+        }
+      }).catch((err) => {
+        reject(err)
+      })
+    }).then((results) => {
+      return results
+    }).catch((err) => {
+      return err
+    })
+  }
+
+  /**
+   * Get a particular queue or list of queues.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} queueId Optional queue id.
+   * @returns {Object} Queue or list of queues.
+   * @public
+   */
+  self.getQueues = function (entityId, queueId = null) {
+    if (queueId != null) {
+      const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+      return firestoreUtils.getDocument(docRef)
+    } else {
+      const colRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection)
+      return firestoreUtils.getCollection(colRef)
     }
   }
 

@@ -16,20 +16,21 @@ const router = express.Router()
  * @public
  */
 router.get('/', function (req, res, next) {
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
   let email = req.query.email
   if (email) {
     // Retrieve entity using email
-    FirebaseUtils.fireStore.getEntitiesByEmail(callback, email)
+    FirebaseUtils.fireStore.getEntitiesByEmail(email).then((results) => {
+      res.status(HttpStatus.OK).json(results)
+    }).catch((err) => {
+      res.status(err.statusCode).json(err)
+    })
   } else {
     // Retrieve all entities
-    FirebaseUtils.fireStore.getEntities(callback)
+    FirebaseUtils.fireStore.getEntities().then((results) => {
+      res.status(HttpStatus.OK).json(results)
+    }).catch((err) => {
+      res.status(err.statusCode).json(err)
+    })
   }
 })
 
@@ -39,20 +40,17 @@ router.get('/', function (req, res, next) {
  */
 router.get('/:entityId', function (req, res, next) {
   const entityId = req.params.entityId   // entity id
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.getEntities(callback, entityId)
+  FirebaseUtils.fireStore.getEntities(entityId).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
-  * Create the entity only. Refer to /user if you want to create the firebase user also.
-  * @public
-  */
+ * Create the entity only. Refer to /user if you want to create the firebase user also.
+ * @public
+ */
 router.post('/', function (req, res, next) {
   if (!req.body.entity) {
     res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData))
@@ -73,20 +71,17 @@ router.post('/', function (req, res, next) {
   utils.Mapper.assign(entity, data)
 
   // Save the entity
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.CREATED).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.saveEntity(callback, entity)
+  FirebaseUtils.fireStore.saveEntity(entity).then((results) => {
+    res.status(HttpStatus.CREATED).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
-  * Update an entity.
-  * @public
-  */
+ * Update an entity.
+ * @public
+ */
 router.put('/:entityId', function (req, res, next) {
   const entityId = req.params.entityId
 
@@ -109,20 +104,18 @@ router.put('/:entityId', function (req, res, next) {
   utils.Mapper.assign(entity, data)
 
   // Save the entity
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.saveEntity(callback, entity)
+  FirebaseUtils.fireStore.saveEntity(entity).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
-  * Create the firebase login user and entity with avatar. Using multipart/form-data.
-  * @public
-  */
+ * TODO
+ * Create the firebase login user and entity with avatar. Using multipart/form-data.
+ * @public
+ */
 router.post('/user', function (req, res, next) {
   try {
     // parse a file upload
@@ -207,15 +200,11 @@ router.post('/user', function (req, res, next) {
  */
 router.get('/:entityId/queue', function (req, res, next) {
   const entityId = req.params.entityId
-
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.getQueues(callback, entityId)
+  FirebaseUtils.fireStore.getQueues(entityId).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -225,15 +214,11 @@ router.get('/:entityId/queue', function (req, res, next) {
 router.get('/:entityId/queue/:queueId', function (req, res, next) {
   const entityId = req.params.entityId
   const queueId = req.params.queueId
-
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.getQueues(callback, entityId, queueId)
+  FirebaseUtils.fireStore.getQueues(entityId, queueId).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -258,14 +243,12 @@ router.post('/:entityId/queue', function (req, res, next) {
   // Map the remaining queue values from the request
   utils.Mapper.assign(queue, data)
 
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.CREATED).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.saveQueue(callback, entityId, queue)  // Save the queue
+  // Save the queue
+  FirebaseUtils.fireStore.saveQueue(entityId, queue).then((results) => {
+    res.status(HttpStatus.CREATED).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -292,14 +275,12 @@ router.put('/:entityId/queue/:queueId', function (req, res, next) {
   // Map the remaining entity values from the request
   utils.Mapper.assign(queue, data)
 
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.saveQueue(callback, entityId, queue)  // Save the queue
+  // Update the queue
+  FirebaseUtils.fireStore.saveQueue(entityId, queue).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -309,16 +290,11 @@ router.put('/:entityId/queue/:queueId', function (req, res, next) {
 router.delete('/:entityId/queue/:queueId', function (req, res, next) {
   const entityId = req.params.entityId
   const queueId = req.params.queueId
-
-  let callback = (results = '', err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.ACCEPTED).json(constants.QueueDeleted)
-    }
-  }
-
-  FirebaseUtils.fireStore.deleteQueue(callback, entityId, queueId)
+  FirebaseUtils.fireStore.deleteQueue(entityId, queueId).then((results) => {
+    res.status(HttpStatus.ACCEPTED).json(constants.QueueDeleted)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 module.exports = router
