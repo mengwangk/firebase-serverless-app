@@ -444,18 +444,17 @@ const FireStore = (function () {
   /**
    * Get lookup data.
    *
-   * @param {function} callback Callback function.
    * @param {string} lookupType Optional lookup type.
    * @returns {Object} The lookup data.
    */
-  self.getLookup = function (callback, lookupType) {
+  self.getLookup = function (lookupType = null) {
     var docRef = null
     if (lookupType) {
       docRef = firebaseAdmin.firestore().collection(constants.LookupCollection).doc(lookupType)
-      firestoreUtils.getDoc(docRef, callback)
+      return firestoreUtils.getDocument(docRef)
     } else {
       docRef = firebaseAdmin.firestore().collection(constants.LookupCollection)
-      firestoreUtils.getCol(docRef, callback)
+      return firestoreUtils.getCollection(docRef)
     }
   }
 

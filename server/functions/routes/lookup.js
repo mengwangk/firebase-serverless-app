@@ -11,14 +11,11 @@ const router = express.Router()
  * @public
  */
 router.get('/', function (req, res, next) {
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.getLookup(callback, null)
+  FirebaseUtils.fireStore.getLookup().then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -27,14 +24,11 @@ router.get('/', function (req, res, next) {
  */
 router.get('/:lookupType', function (req, res, next) {
   const lookupType = req.params.lookupType
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.getLookup(callback, lookupType)
+  FirebaseUtils.fireStore.getLookup(lookupType).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 module.exports = router

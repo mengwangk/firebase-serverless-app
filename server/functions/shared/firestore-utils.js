@@ -1,4 +1,5 @@
 'use strict'
+
 /**
  * Firestore helper class.
  * @public
@@ -64,16 +65,16 @@ const deleteCol = function (colRef, batchSize = 100) {
   })
 }
 
-   /**
-   * Delete documents in batch.
-   *
-   * @param {Object} db Firestore database.
-   * @param {Object} query Query.
-   * @param {number} batchSize Batch size.
-   * @param {function} resolve Success promise.
-   * @param {function} reject Failure promise.
-   * @private
-   */
+/**
+ * Delete documents in batch.
+ *
+ * @param {Object} db Firestore database.
+ * @param {Object} query Query.
+ * @param {number} batchSize Batch size.
+ * @param {function} resolve Success promise.
+ * @param {function} reject Failure promise.
+ * @private
+ */
 const deleteBatch = function (db, query, batchSize, resolve, reject) {
   query.get().then((snapshot) => {
     // When there are no documents left, we are done
@@ -188,12 +189,69 @@ const getColCount = function (docRef, callback) {
   })
 }
 
+// ----------------------------- Promise based functions  ------------------------------------------ //
+
+/**
+ * Get a document.
+ *
+ * @param {Object} docRef Document reference.
+ * @returns {Object} Found document.
+ * @private
+ */
+const getDocument = function (docRef) {
+  return new Promise((resolve, reject) => {
+    docRef.get().then((doc) => {
+      if (!doc.exists) {
+        reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(docRef.path)))
+      } else {
+        resolve(doc.data())
+      }
+    }).catch((err) => {
+      reject(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+    })
+  }).then((results) => {
+    return results
+  }).catch((err) => {
+    return err
+  })
+}
+
+/**
+ * Get a collection of objects.
+ *
+ * @param {Object} docRef Document reference.
+ * @returns {Object} List of objects.
+ * @private
+ */
+const getCollection = function (docRef) {
+  return new Promise((resolve, reject) => {
+    docRef.get().then((snapshot) => {
+      var docList = []
+      snapshot.forEach((doc) => {
+        docList.push(doc.data())
+      })
+      resolve(docList)
+    }).catch((err) => {
+      reject(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+    })
+  }).then((results) => {
+    return results
+  }).catch((err) => {
+    return err
+  })
+}
+
 module.exports = {
+  getDoc: getDoc,
+  getCol: getCol,
   saveDoc: saveDoc,
   deleteDoc: deleteDoc,
   deleteCol: deleteCol,
   getDocByQuery: getDocByQuery,
-  getDoc: getDoc,
-  getCol: getCol,
-  getColCount: getColCount
+  getColCount: getColCount,
+
+  // Promise based functions
+  getDocument: getDocument,
+  getCollection: getCollection
+
 }
