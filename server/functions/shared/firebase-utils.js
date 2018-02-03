@@ -86,7 +86,6 @@ const FireStore = (function () {
     return JSON.parse(historyData)
   }
 
-
   /**
    * Save a booking.
    *
@@ -228,12 +227,12 @@ const FireStore = (function () {
     // Get all existing queues
     firestoreUtils.getCollection(colRef).then((queues) => {
        // Get all historical bookings
-       const historyColRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId)
+      const historyColRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId)
                                 .collection(constants.QueueCollection).limit(BATCH_SIZE)
-       const archiveSummary = new ArchiveSummary(0, 0, 0)
-       return new Promise((resolve, reject) => {
-         batchArchiveHistory(archiveSummary, entityId, queues, firebaseAdmin.firestore(), historyColRef, BATCH_SIZE, resolve, reject)
-       })
+      const archiveSummary = new ArchiveSummary(0, 0, 0)
+      return new Promise((resolve, reject) => {
+        batchArchiveHistory(archiveSummary, entityId, queues, firebaseAdmin.firestore(), historyColRef, BATCH_SIZE, resolve, reject)
+      })
     }).catch((err) => {
       console.error(err)
     })
@@ -300,7 +299,7 @@ const FireStore = (function () {
       })
     }).then((numDeleted) => {
       if (numDeleted === 0) {
-        console.log("COMPLETE ARCHIVING *****")
+        console.log('COMPLETE ARCHIVING *****')
         resolve()
         return
       }
