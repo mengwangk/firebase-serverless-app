@@ -16,15 +16,11 @@ const router = express.Router()
 router.get('/:entityId/:queueId', function (req, res, next) {
   const entityId = req.params.entityId   // entity id
   const queueId = req.params.queueId     // queue id
-
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.getBookings(callback, entityId, queueId)
+  FirebaseUtils.fireStore.getBookings(entityId, queueId).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -34,16 +30,12 @@ router.get('/:entityId/:queueId', function (req, res, next) {
 router.get('/:entityId/:queueId/count', function (req, res, next) {
   const entityId = req.params.entityId   // entity id
   const queueId = req.params.queueId     // queue id
-
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
   // Avoid returning large number of records when only the total number of bookings is required
-  FirebaseUtils.fireStore.getBookingsCount(callback, entityId, queueId)
+  FirebaseUtils.fireStore.getBookingsCount(entityId, queueId).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -68,15 +60,12 @@ router.post('/:entityId/:queueId', function (req, res, next) {
     res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, req.body.booking))
     return
   }
-
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.CREATED).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.saveBooking(callback, entityId, queueId, booking)  // Save the booking info
+  // Save the booking info
+  FirebaseUtils.fireStore.saveBooking(entityId, queueId, booking).then((results) => {
+    res.status(HttpStatus.CREATED).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -105,14 +94,11 @@ router.put('/:entityId/:queueId/:bookingId', function (req, res, next) {
   // Map the remaining booking values from the request
   utils.Mapper.assign(booking, data)
 
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.saveBooking(callback, entityId, queueId, booking)  // Save the booking info
+  FirebaseUtils.fireStore.saveBooking(entityId, queueId, booking).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -127,14 +113,11 @@ router.delete('/:entityId/:queueId/', function (req, res, next) {
   const queueId = req.params.queueId
 
   // Clear all bookings
-  let callback = (results = '', err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.ACCEPTED).json(constants.BatchQueueClear)
-    }
-  }
-  FirebaseUtils.fireStore.clearQueue(callback, entityId, queueId)
+  FirebaseUtils.fireStore.clearQueue(entityId, queueId).then(() => {
+    res.status(HttpStatus.ACCEPTED).json(constants.BatchQueueClear)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -160,16 +143,13 @@ router.delete('/:entityId/:queueId/:bookingId/:action', function (req, res, next
     return
   }
 
-  let callback = (results = '', err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(constants.BookingDeleted)
-    }
-  }
-
   // Delete the booking info
-  FirebaseUtils.fireStore.deleteBooking(callback, action, entityId, queueId, bookingId)
+  FirebaseUtils.fireStore.deleteBooking(action, entityId, queueId, bookingId).then((results) => {
+    // console.log(results)
+    res.status(HttpStatus.OK).json(constants.BookingDeleted)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 module.exports = router

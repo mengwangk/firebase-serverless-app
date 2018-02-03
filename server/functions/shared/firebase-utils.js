@@ -72,149 +72,6 @@ const FireStore = (function () {
   var self = {}
 
   /**
-   * Creat a history booking object.
-   *
-   * @param {string} entityId Entity id.
-   * @param {string} queueId  Queue id.
-   * @param {Object} doc Document snapshot.
-   * @param {string} status Removed or Done.
-   */
-  const createHistoryBooking = function (entityId, queueId, doc, status) {
-    const booking = doc.data()
-    const history = new History(queueId, status, booking)
-    var historyData = JSON.stringify(history)
-    return JSON.parse(historyData)
-  }
-
-  /**
-   * Save a booking.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} entityId Entity id.
-   * @param {string} queueId Queue id.
-   * @param {Object} booking Booking object.
-   * @public
-   */
-  self.saveBooking = function (callback, entityId, queueId, booking) {
-    const queueDocRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-    const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(booking.id)
-    firebaseAdmin.firestore().runTransaction(t => {
-      return t.get(queueDocRef).then(doc => {
-        if (doc.exists) {
-          if (!booking.bookingNo) {
-            // Set the booking no
-            var queue = doc.data()
-            var newCounter = queue.counter + 1
-            booking.bookingNo = queue.prefix + newCounter.pad(3)
-            t.update(queueDocRef, { counter: utils.Counter.next(newCounter) })
-          }
-          var bookingData = JSON.stringify(booking)
-          t.set(bookingDocRef, JSON.parse(bookingData))
-          return Promise.resolve(booking)
-        } else {
-          return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(queueDocRef.path)))
-        }
-      })
-    }).then(results => {
-      callback(results)
-    }).catch(err => {
-      callback(null, err)
-    })
-  }
-
-  /**
-   * Get a list of bookings under a queue.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} entityId Entity id.
-   * @param {string} queueId Queue id.
-   * @returns {Object} List of bookings.
-   * @public
-   */
-  self.getBookings = function (callback, entityId, queueId) {
-    const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-    firestoreUtils.getCol(colRef, callback)
-  }
-
-  /**
-   * Get the total booking count under a queue.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} entityId Entity id.
-   * @param {string} queueId Queue id.
-   * @public
-   */
-  self.getBookingsCount = function (callback, entityId, queueId) {
-    const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-    firestoreUtils.getColCount(colRef, callback)
-  }
-
-  /**
-   * Delete a booking.
-   *
-   * @param {function} callback Call back function.
-   * @param {string} action Remove or done with the booking.
-   * @param {string} entityId Entity id.
-   * @param {string} queueId Queue id.
-   * @param {string} bookingId Booking id.
-   * @public
-   */
-  self.deleteBooking = function (callback, action, entityId, queueId, bookingId) {
-    const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
-    const historyDocRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
-    firebaseAdmin.firestore().runTransaction(t => {
-      return t.get(bookingDocRef).then(doc => {
-        if (doc.exists) {
-          // Save to history
-          const booking = doc.data()
-          const status = (action === constants.BookingAction.done ? constants.BookingStatus.done : constants.BookingStatus.removed)
-          const historyBooking = createHistoryBooking(entityId, queueId, doc, status)
-          t.set(historyDocRef, historyBooking)
-
-          // Remove the booking
-          t.delete(bookingDocRef)
-          return Promise.resolve(booking)
-        } else {
-          return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(bookingDocRef.path)))
-        }
-      })
-    }).then(results => {
-      callback(results)
-    }).catch(err => {
-      callback(null, err)
-    })
-  }
-
-  /**
-   * Clear a queue and reset the counter.
-   * The bookings will be permanently deleted (NOT in history or archive).
-   *
-   * @param {function} callback Call back function.
-   * @param {string} entityId Entity id.
-   * @param {string} queueId Queue id.
-   * @public
-   */
-  self.clearQueue = function (callback, entityId, queueId) {
-    try {
-      // Delete the queue collection
-      const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
-      firestoreUtils.deleteCollection(colRef)
-
-      // Reset the queue counter
-      const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-      docRef.update({ counter: 0 }).then(() => {
-        callback()
-      }).catch((err) => {
-        callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
-      })
-    } catch (err) {
-      callback(null, new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
-    }
-  }
-
-  // ----------------------------- Promise based functions  ------------------------------------------ //
-
-  /**
    * Send all the historical bookings to archive.
    *
    * @param {Object} colRef Collection reference.
@@ -299,7 +156,6 @@ const FireStore = (function () {
       })
     }).then((numDeleted) => {
       if (numDeleted === 0) {
-        console.log('COMPLETE ARCHIVING *****')
         resolve()
         return
       }
@@ -524,42 +380,25 @@ const FireStore = (function () {
    * @public
    */
   self.returnHistory = function (action, entityId, queueId, bookingId) {
-    // Check if the queue exists
-    const queueDocRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-    return new Promise((resolve, reject) => {
-      firestoreUtils.getDocument(queueDocRef).then((queueDoc) => {
-        // Proceed to return or achive the booking
-        const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
-        const historyDocRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
-        firebaseAdmin.firestore().runTransaction(t => {
-          return t.get(historyDocRef).then(historyDoc => {
-            if (historyDoc.exists) {
-              const history = historyDoc.data()
-              if (action === constants.HistoryAction.return) {
-                // Return to the original queue
-                const booking = new Booking(history.name, history.contactNo, history.noOfSeats, history.id, history.bookingNo, history.bookedDate)
-                const bookingData = JSON.stringify(booking)
-                t.set(bookingDocRef, JSON.parse(bookingData))
-              }
-              // Delete the history
-              t.delete(historyDocRef)
-              return Promise.resolve(history)
-            } else {
-              return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(historyDocRef.path)))
-            }
-          })
-        }).then(results => {
-          resolve(results)
-        }).catch(err => {
-          reject(err)
-        })
-      }).catch((err) => {
-        reject(err)
+    const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
+    const historyDocRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
+    return firebaseAdmin.firestore().runTransaction(t => {
+      return t.get(historyDocRef).then(historyDoc => {
+        if (historyDoc.exists) {
+          const history = historyDoc.data()
+          if (action === constants.HistoryAction.return) {
+             // Return to the original queue
+            const booking = new Booking(history.name, history.contactNo, history.noOfSeats, history.id, history.bookingNo, history.bookedDate)
+            const bookingData = JSON.stringify(booking)
+            t.set(bookingDocRef, JSON.parse(bookingData))
+          }
+           // Delete the history
+          t.delete(historyDocRef)
+          return Promise.resolve(history)
+        } else {
+          return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(historyDocRef.path)))
+        }
       })
-    }).then((results) => {
-      return results
-    }).catch((err) => {
-      throw err
     })
   }
 
@@ -578,6 +417,137 @@ const FireStore = (function () {
     }).then(() => {
     }).catch((err) => {
       throw err
+    })
+  }
+
+  /**
+   * Get a list of bookings under a queue.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} queueId Queue id.
+   * @returns {Object} List of bookings.
+   * @public
+   */
+  self.getBookings = function (entityId, queueId) {
+    const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).orderBy(Booking.BOOKED_DATE_FIELD, 'desc')
+    return firestoreUtils.getCollection(colRef)
+  }
+
+  /**
+   * Get the total bookings count under a queue.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} queueId Queue id.
+   * @public
+   */
+  self.getBookingsCount = function (entityId, queueId) {
+    const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
+    return firestoreUtils.getCollectionCount(colRef)
+  }
+
+  /**
+   * Save a booking.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} queueId Queue id.
+   * @param {Object} booking Booking object.
+   * @public
+   */
+  self.saveBooking = function (entityId, queueId, booking) {
+    const queueDocRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+    const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(booking.id)
+    return firebaseAdmin.firestore().runTransaction(t => {
+      return t.get(queueDocRef).then(doc => {
+        if (doc.exists) {
+          if (!booking.bookingNo) {
+          // Set the booking no
+            var queue = doc.data()
+            var newCounter = queue.counter + 1
+            booking.bookingNo = queue.prefix + newCounter.pad(3)
+            t.update(queueDocRef, { counter: utils.Counter.next(newCounter) })
+          }
+          var bookingData = JSON.stringify(booking)
+          t.set(bookingDocRef, JSON.parse(bookingData))
+          return Promise.resolve(booking)
+        } else {
+          return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(queueDocRef.path)))
+        }
+      })
+    })
+  }
+
+ /**
+  * Clear a queue and reset the counter.
+  * The bookings will be permanently deleted (NOT in history or archive).
+  *
+  * @param {string} entityId Entity id.
+  * @param {string} queueId Queue id.
+  * @public
+  */
+  self.clearQueue = function (entityId, queueId) {
+    return new Promise((resolve, reject) => {
+      // Delete the queue collection
+      const colRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId)
+      firestoreUtils.deleteCollection(colRef)
+
+      // Reset the queue counter
+      const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+      docRef.update({ counter: 0 }).then(() => {
+        resolve()
+      }).catch((err) => {
+        reject(ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.ServerError, err))
+      })
+
+      // How about the history?
+    }).then(() => {
+    }).catch((err) => {
+      throw err
+    })
+  }
+
+  /**
+   * Creat a history booking object.
+   *
+   * @param {string} entityId Entity id.
+   * @param {string} queueId  Queue id.
+   * @param {Object} doc Document snapshot.
+   * @param {string} status Removed or Done.
+   */
+  const createHistoryBooking = function (entityId, queueId, doc, status) {
+    const booking = doc.data()
+    const history = new History(queueId, status, booking)
+    var historyData = JSON.stringify(history)
+    return JSON.parse(historyData)
+  }
+
+  /**
+   * Delete a booking.
+   *
+   * @param {string} action Remove or done with the booking.
+   * @param {string} entityId Entity id.
+   * @param {string} queueId Queue id.
+   * @param {string} bookingId Booking id.
+   * @public
+   */
+  self.deleteBooking = function (action, entityId, queueId, bookingId) {
+    const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
+    const historyDocRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
+    return firebaseAdmin.firestore().runTransaction(t => {
+      return t.get(bookingDocRef).then(doc => {
+        if (doc.exists) {
+          // Save to history
+          const booking = doc.data()
+          const status = (action === constants.BookingAction.done ? constants.BookingStatus.done : constants.BookingStatus.removed)
+          const historyBooking = createHistoryBooking(entityId, queueId, doc, status)
+          t.set(historyDocRef, historyBooking)
+
+          // Remove the booking
+          t.delete(bookingDocRef)
+          return Promise.resolve(booking)
+        } else {
+          return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(bookingDocRef.path)))
+        }
+      })
     })
   }
 
