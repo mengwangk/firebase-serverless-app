@@ -8,6 +8,8 @@ const ApplicationError = require('../models/application-error')
 const Queue = require('../models/queue')
 const Entity = require('../models/entity')
 const FirebaseUtils = require('../shared/firebase-utils')
+const Busboy = require('busboy')
+const inspect = require('util').inspect;
 const router = express.Router()
 
 /**
@@ -117,6 +119,35 @@ router.put('/:entityId', function (req, res, next) {
  * @public
  */
 router.post('/user', function (req, res, next) {
+  // Instantiate busboy
+  var busboy = new Busboy({ headers: req.headers })
+
+  // Listen for file upload
+  busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+    console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype)
+    file.on('data', function (data) {
+      console.log('File [' + fieldname + '] got ' + data.length + ' bytes')
+    })
+    file.on('end', function () {
+      console.log('File [' + fieldname + '] Finished')
+    })
+  })
+
+  // Listen for form fields
+  busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
+    console.log('Field [' + fieldname + ']: value: ' + inspect(val))
+  })
+
+  // When everything is done
+  busboy.on('finish', function () {
+    console.log('Done parsing form!')
+    res.writeHead(303, { Connection: 'close', Location: '/' })
+    res.end()
+  })
+  
+  // The raw bytes of the upload will be in req.rawBody. Send it to
+  // busboy, and get a callback when it's finished.
+  busboy.end(req.rawBody)
 })
 
 /*

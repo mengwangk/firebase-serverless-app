@@ -250,13 +250,13 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
                     Snackbar.make(findViewById(android.R.id.content), R.string.message_upload_success, Snackbar.LENGTH_LONG).show();
                 }
             })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w(TAG, "uploadPhoto:onError", e);
-                        Snackbar.make(findViewById(android.R.id.content), R.string.message_upload_failed, Snackbar.LENGTH_LONG).show();
-                    }
-                });
+                    .addOnFailureListener(this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "uploadPhoto:onError", e);
+                            Snackbar.make(findViewById(android.R.id.content), R.string.message_upload_failed, Snackbar.LENGTH_LONG).show();
+                        }
+                    });
         } catch (IOException e) {
             Snackbar.make(findViewById(android.R.id.content), R.string.message_upload_failed, Snackbar.LENGTH_LONG).show();
         }
@@ -293,13 +293,13 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
     void loadPhoto(final StorageReference storageReference) {
         if (storageReference != null) {
             GlideApp.with(SettingsActivity.this)
-                .load(storageReference)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .skipMemoryCache(true)
-                .centerCrop()
-                .override(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
-                .transition(DrawableTransitionOptions.withCrossFade())
-                .into(avatarImage);
+                    .load(storageReference)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .skipMemoryCache(true)
+                    .centerCrop()
+                    .override(THUMBNAIL_SIZE, THUMBNAIL_SIZE)
+                    .transition(DrawableTransitionOptions.withCrossFade())
+                    .into(avatarImage);
         }
     }
 
@@ -321,39 +321,42 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
         entity.setEmail("upload_user123@gmail.com");
         entity.setName("test user");
         entity.setIndustry(entityIndustry.getSelectedItem().toString());
+
         // Proceed to set other values as well
 
         final CreateUserRequest createUserRequest = new CreateUserRequest(entity, "password123");       // Set the password
         try {
-            if (this.selectedImage != null) {   // Assume a photo is selected
+            MultipartBody.Part photo = null;
+            if (this.selectedImage != null) {
                 byte[] imageBytes = resizeBitmap(this.selectedImage);
                 RequestBody reqFile = RequestBody.create(MediaType.parse("image/png"), imageBytes);
-                MultipartBody.Part avatar = MultipartBody.Part.createFormData("avatar", AVATAR_FILE_NAME, reqFile); // DO not change the name
-                RequestBody reqEntity = RequestBody.create(okhttp3.MultipartBody.FORM, new Gson().toJson(createUserRequest));
-                KyooApp.getApiService().createUserAndEntity(reqEntity, avatar).enqueue(new Callback<Entity>() {
-                    @Override
-                    public void onResponse(Call<Entity> call, Response<Entity> response) {
-                        if (response.isSuccessful()) {
-                            final Entity entity = response.body();
-                            KyooApp.getInstance(SettingsActivity.this).setEntity(entity);
-                            setHeaderView();
-                            Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configured, Snackbar.LENGTH_LONG).show();
-                        } else {
-                            // handle request errors depending on status code
-                            Log.e(TAG, "Raw : " + response.raw().toString());
-                            Log.e(TAG, "Error body: " + response.errorBody().toString());
-                            int statusCode = response.code();
-                            Snackbar.make(findViewById(android.R.id.content), getString(R.string.message_entity_configure_status_code, statusCode), Snackbar.LENGTH_LONG).show();
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<Entity> call, Throwable t) {
-                        Log.e(TAG, "Unable to update entity", t);
-                        Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configure_error, Snackbar.LENGTH_LONG).show();
-                    }
-                });
+                photo = MultipartBody.Part.createFormData("avatar", AVATAR_FILE_NAME, reqFile); // DO not change the name
             }
+            RequestBody request = RequestBody.create(okhttp3.MultipartBody.FORM, new Gson().toJson(createUserRequest));
+            KyooApp.getApiService().createUserAndEntity(request, photo).enqueue(new Callback<Entity>() {
+                @Override
+                public void onResponse(Call<Entity> call, Response<Entity> response) {
+                    if (response.isSuccessful()) {
+                        final Entity entity = response.body();
+                        KyooApp.getInstance(SettingsActivity.this).setEntity(entity);
+                        setHeaderView();
+                        Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configured, Snackbar.LENGTH_LONG).show();
+                    } else {
+                        // handle request errors depending on status code
+                        Log.e(TAG, "Raw : " + response.raw().toString());
+                        Log.e(TAG, "Error body: " + response.errorBody().toString());
+                        int statusCode = response.code();
+                        Snackbar.make(findViewById(android.R.id.content), getString(R.string.message_entity_configure_status_code, statusCode), Snackbar.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Entity> call, Throwable t) {
+                    Log.e(TAG, "Unable to update entity", t);
+                    Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configure_error, Snackbar.LENGTH_LONG).show();
+                }
+            });
+
         } catch (Exception e) {
             Log.e(TAG, "Unable to create user", e);
             Snackbar.make(findViewById(android.R.id.content), R.string.message_entity_configure_error, Snackbar.LENGTH_LONG).show();
