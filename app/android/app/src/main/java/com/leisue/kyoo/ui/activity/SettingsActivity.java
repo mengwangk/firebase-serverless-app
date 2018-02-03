@@ -186,6 +186,7 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
 
         Log.i(TAG, "Upload an avatar.");
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(i, RC_CHOOSE_PHOTO);
     }
 

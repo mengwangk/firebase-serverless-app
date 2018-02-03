@@ -8,7 +8,6 @@ const ApplicationError = require('../models/application-error')
 const Queue = require('../models/queue')
 const Entity = require('../models/entity')
 const FirebaseUtils = require('../shared/firebase-utils')
-const formidable = require('formidable')
 const router = express.Router()
 
 /**
@@ -113,16 +112,23 @@ router.put('/:entityId', function (req, res, next) {
 
 /**
  * Create the firebase login user and entity with avatar. Using multipart/form-data.
+ * https://cloud.google.com/functions/docs/writing/http#handling_multipart_form_uploads
+ *
  * @public
  */
+router.post('/user', function (req, res, next) {
+})
+
+/*
 router.post('/user', function (req, res, next) {
   // parse a file upload
   const form = new formidable.IncomingForm()
   form.parse(req, function (err, fields, files) {
+    console.log('req => ' + JSON.stringify(req))
     console.log('error => ' + JSON.stringify(err))
     console.log('fields => ' + JSON.stringify(fields))
     console.log('files => ' + JSON.stringify(files))
-    
+
     const entityRequest = JSON.parse(fields.entityRequest)
     const data = entityRequest.entity
     const password = entityRequest.password
@@ -191,6 +197,7 @@ router.post('/user', function (req, res, next) {
       })
   })
 })
+*/
 
 /**
  * Get a list of queues belonged to this entity.
