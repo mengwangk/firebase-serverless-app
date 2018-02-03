@@ -492,7 +492,7 @@ const FireStore = (function () {
           return firestoreUtils.deleteDocument(docRef)
         } else {
           // Throw error - history queue is not empty
-          throw new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.HistoryNotEmpty, 'Path: {0}'.format(historyColRef.path))
+          throw new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.HistoryNotEmpty)  // Path not availabel for Query
         }
       }).then(() => {
         resolve()
