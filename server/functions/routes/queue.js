@@ -114,7 +114,7 @@ router.delete('/:entityId/:queueId/', function (req, res, next) {
 
   // Clear all bookings
   FirebaseUtils.fireStore.clearQueue(entityId, queueId).then(() => {
-    res.status(HttpStatus.ACCEPTED).json(constants.BatchQueueClear)
+    res.status(HttpStatus.ACCEPTED).json(constants.BatchClearQueue)
   }).catch((err) => {
     res.status(err.statusCode).json(err)
   })
