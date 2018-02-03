@@ -13,14 +13,11 @@ const router = express.Router()
  */
 router.get('/:entityId', function (req, res, next) {
   const entityId = req.params.entityId
-  let callback = (results, err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(results)
-    }
-  }
-  FirebaseUtils.fireStore.getHistories(callback, entityId)
+  FirebaseUtils.fireStore.getHistories(entityId).then((results) => {
+    res.status(HttpStatus.OK).json(results)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -46,16 +43,12 @@ router.delete('/:entityId/:queueId/:bookingId/:action', function (req, res, next
     return
   }
 
-  let callback = (results = '', err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.OK).json(constants.HistoryUpdated)
-    }
-  }
-
   // Return the historical booking
-  FirebaseUtils.fireStore.returnHistory(callback, action, entityId, queueId, bookingId)
+  FirebaseUtils.fireStore.returnHistory(action, entityId, queueId, bookingId).then((results) => {
+    res.status(HttpStatus.OK).json(constants.HistoryUpdated)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 /**
@@ -75,16 +68,12 @@ router.delete('/:entityId/:action', function (req, res, next) {
     return
   }
 
-  let callback = (results = '', err = null) => {
-    if (err != null) {
-      res.status(err.statusCode).json(err)
-    } else {
-      res.status(HttpStatus.ACCEPTED).json(constants.BatchArchive)
-    }
-  }
-
   // Archive the historical booking
-  FirebaseUtils.fireStore.archiveHistory(callback, entityId)
+  FirebaseUtils.fireStore.archiveHistory(entityId).then((results) => {
+    res.status(HttpStatus.ACCEPTED).json(constants.BatchArchive)
+  }).catch((err) => {
+    res.status(err.statusCode).json(err)
+  })
 })
 
 module.exports = router
