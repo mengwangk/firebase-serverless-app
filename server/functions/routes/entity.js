@@ -12,7 +12,7 @@ const Queue = require('../models/queue')
 const Entity = require('../models/entity')
 const FirebaseUtils = require('../shared/firebase-utils')
 const Busboy = require('busboy')
-const inspect = require('util').inspect;
+const inspect = require('util').inspect
 const router = express.Router()
 
 /**
@@ -124,6 +124,8 @@ router.put('/:entityId', function (req, res, next) {
 router.post('/user', function (req, res, next) {
   // Instantiate busboy
   var busboy = new Busboy({ headers: req.headers })
+  var fields = {}
+  var uploadedFile = {}
 
   // Listen for file upload
   busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
@@ -147,7 +149,7 @@ router.post('/user', function (req, res, next) {
     res.writeHead(303, { Connection: 'close', Location: '/' })
     res.end()
   })
-  
+
   // The raw bytes of the upload will be in req.rawBody. Send it to
   // busboy, and get a callback when it's finished.
   busboy.end(req.rawBody)
