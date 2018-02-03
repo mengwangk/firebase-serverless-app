@@ -291,8 +291,10 @@ router.delete('/:entityId/queue/:queueId', function (req, res, next) {
   const entityId = req.params.entityId
   const queueId = req.params.queueId
   FirebaseUtils.fireStore.deleteQueue(entityId, queueId).then((results) => {
+    console.log('accept')
     res.status(HttpStatus.ACCEPTED).json(constants.QueueDeleted)
   }).catch((err) => {
+    console.log('err...')
     res.status(err.statusCode).json(err)
   })
 })

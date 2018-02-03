@@ -111,7 +111,7 @@ const FireStore = (function () {
         console.error(err)
       }
     }
-       // Get all existing queues
+    // Get all existing queues
     firestoreUtils.getCol(colRef, callback)
   }
 
@@ -480,30 +480,29 @@ const FireStore = (function () {
       firestoreUtils.getCollectionCount(colRef).then((documentCount) => {
         if (documentCount === 0) {
           // Queue is empty, check history queue
-          firestoreUtils.getCollectionCount(historyColRef).then((historyCount) => {
-            if (historyCount === 0) {
-              // History queue is empty, proceed to delete
-              const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
-              console.log('DELETE THE DOC')
-              return firestoreUtils.deleteDocument(docRef)
-            } else {
-              // Throw error - history queue is not empty
-              reject(new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.HistoryNotEmpty, 'Path: {0}'.format(historyColRef.path)))
-            }
-          }).catch((err) => {
-            reject(err)
-          })
+          return firestoreUtils.getCollectionCount(historyColRef)
         } else {
           // Throw error - queue is not empty
-          reject(new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.QueueNotEmpty, 'Path: {0}'.format(colRef.path)))
+          throw new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.QueueNotEmpty, 'Path: {0}'.format(colRef.path))
         }
+      }).then((historyCount) => {
+        if (historyCount === 0) {
+          // History queue is empty, proceed to delete
+          const docRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
+          return firestoreUtils.deleteDocument(docRef)
+        } else {
+          // Throw error - history queue is not empty
+          throw new ApplicationError(HttpStatus.METHOD_NOT_ALLOWED, constants.HistoryNotEmpty, 'Path: {0}'.format(historyColRef.path))
+        }
+      }).then(() => {
+        resolve()
       }).catch((err) => {
         reject(err)
       })
     }).then((results) => {
       return results
     }).catch((err) => {
-      return err
+      throw err
     })
   }
 
@@ -551,24 +550,24 @@ const FireStore = (function () {
     return firestoreUtils.getCollection(colRef)
   }
 
-   /**
-   * Delete archives for an entity.
-   *
-   * @param {string} entityId Entity id.
-   * @param {string} archiveId List of comma separated archive ids.
-   * @public
-   */
+ /**
+  * Delete archives for an entity.
+  *
+  * @param {string} entityId Entity id.
+  * @param {string} archiveId List of comma separated archive ids.
+  * @public
+  */
   self.deleteArchives = function (entityId, archiveIds) {
     const idList = archiveIds.split(',')
     return new Promise((resolve, reject) => {
       idList.forEach(function (id) {
         // Delete archive summary
         const docRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).doc(id)
-        firestoreUtils.deleteDocument(docRef)
-
-        // Delete archived history
-        const colRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).doc(id).collection(constants.HistoryCollection)
-        firestoreUtils.deleteCollection(colRef)
+        firestoreUtils.deleteDocument(docRef).then(() => {
+          // Delete archived history
+          const colRef = firebaseAdmin.firestore().collection(constants.ArchiveCollection).doc(entityId).collection(constants.QueueCollection).doc(id).collection(constants.HistoryCollection)
+          firestoreUtils.deleteCollection(colRef)
+        })
       })
       resolve()
     }).then(() => {
@@ -577,7 +576,7 @@ const FireStore = (function () {
     })
   }
 
-   /**
+  /**
    * Delete all archives for an entity.
    *
    * @param {string} entityId Entity id.
