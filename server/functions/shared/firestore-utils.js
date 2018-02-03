@@ -198,7 +198,7 @@ const getDocument = function (docRef) {
   }).then((results) => {
     return results
   }).catch((err) => {
-    return err
+    throw err
   })
 }
 
@@ -223,7 +223,7 @@ const getCollection = function (docRef) {
   }).then((results) => {
     return results
   }).catch((err) => {
-    return err
+    throw err
   })
 }
 
@@ -257,7 +257,7 @@ const deleteDocument = function (docRef) {
   }).then(() => {
 
   }).catch((err) => {
-    return err
+    throw err
   })
 }
 
@@ -286,7 +286,7 @@ const getDocumentByQuery = function (docRef) {
   }).then((results) => {
     return results
   }).catch((err) => {
-    return err
+    throw err
   })
 }
 
@@ -309,7 +309,7 @@ const saveDocument = function (docRef, obj) {
   }).then((results) => {
     return results
   }).catch((err) => {
-    return err
+    throw err
   })
 }
 
@@ -330,7 +330,7 @@ const getCollectionCount = function (docRef) {
   }).then((results) => {
     return results
   }).catch((err) => {
-    return err
+    throw err
   })
 }
 

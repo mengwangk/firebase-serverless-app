@@ -572,7 +572,7 @@ const FireStore = (function () {
       resolve()
     }).then(() => {
     }).catch((err) => {
-      return err
+      throw err
     })
   }
 
