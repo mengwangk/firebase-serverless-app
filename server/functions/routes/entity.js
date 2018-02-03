@@ -1,5 +1,8 @@
 'use strict'
 
+const path = require('path')
+const os = require('os')
+const fs = require('fs')
 const express = require('express')
 const constants = require('../shared/constants')
 const utils = require('../shared/utils')
