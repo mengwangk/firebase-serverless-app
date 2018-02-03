@@ -85,7 +85,7 @@ app.use(function (err, req, res, next) {
   // res.status(err.status || 500)
   // res.render('error', { partials: Object.assign({}, constants.Partials) })
   if (req.app.get('env') === 'development') {
-    res.status(err.status || 500).json(err.message + '. ' + err.stack)
+    res.status(err.status || 500).json(err)
   } else {
     res.status(err.status || 500).json(err.message)
   }

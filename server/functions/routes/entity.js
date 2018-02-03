@@ -119,20 +119,24 @@ router.post('/user', function (req, res, next) {
   // parse a file upload
   const form = new formidable.IncomingForm()
   form.parse(req, function (err, fields, files) {
+    console.log('error => ' + JSON.stringify(err))
+    console.log('fields => ' + JSON.stringify(fields))
+    console.log('files => ' + JSON.stringify(files))
+    
     const entityRequest = JSON.parse(fields.entityRequest)
     const data = entityRequest.entity
     const password = entityRequest.password
 
-      // Validate the entity
+    // Validate the entity
     if (!data.name || !data.email || !password) {
       res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, fields.entityRequest))
       return
     }
 
-       // Create the entity
+    // Create the entity
     const entity = new Entity(data.name, data.email)
 
-      // Validate the uploaded file
+    // Validate the uploaded file
     const avatarFile = files.avatar
     var storagePath = null
     if (avatarFile) {
