@@ -112,54 +112,52 @@ router.put('/:entityId', function (req, res, next) {
 })
 
 /**
- * TODO
  * Create the firebase login user and entity with avatar. Using multipart/form-data.
  * @public
  */
 router.post('/user', function (req, res, next) {
-  try {
-    // parse a file upload
-    const form = new formidable.IncomingForm()
-    form.parse(req, function (err, fields, files) {
-      const entityRequest = JSON.parse(fields.entityRequest)
-      const data = entityRequest.entity
-      const password = entityRequest.password
+  // parse a file upload
+  const form = new formidable.IncomingForm()
+  form.parse(req, function (err, fields, files) {
+    const entityRequest = JSON.parse(fields.entityRequest)
+    const data = entityRequest.entity
+    const password = entityRequest.password
 
       // Validate the entity
-      if (!data.name || !data.email || !password) {
-        res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, fields.entityRequest))
-        return
-      }
+    if (!data.name || !data.email || !password) {
+      res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, fields.entityRequest))
+      return
+    }
 
        // Create the entity
-      const entity = new Entity(data.name, data.email)
+    const entity = new Entity(data.name, data.email)
 
       // Validate the uploaded file
-      const avatarFile = files.avatar
-      var storagePath = null
-      if (avatarFile) {
+    const avatarFile = files.avatar
+    var storagePath = null
+    if (avatarFile) {
         // Set avatar path
-        storagePath = utils.Upload.createStoragePath(entity, avatarFile)
-        entity.avatar = storagePath
-      }
+      storagePath = utils.Upload.createStoragePath(entity, avatarFile)
+      entity.avatar = storagePath
+    }
       // Map the remaining entity values from the request
-      utils.Mapper.assign(entity, data)
+    utils.Mapper.assign(entity, data)
 
-      if (avatarFile) {
+    if (avatarFile) {
         // Check file size
-        if (utils.Upload.hasExceedMaxAllowedSize(avatarFile.size)) {
-          res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileExceededLimit))
-          return
-        }
-        // Check file type
-        if (!utils.Upload.isFileTypeAllowed(avatarFile.name)) {
-          res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileTypeNotAllowed))
-          return
-        }
+      if (utils.Upload.hasExceedMaxAllowedSize(avatarFile.size)) {
+        res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileExceededLimit))
+        return
       }
+        // Check file type
+      if (!utils.Upload.isFileTypeAllowed(avatarFile.name)) {
+        res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileTypeNotAllowed))
+        return
+      }
+    }
 
       // Create the firebase user
-      FirebaseUtils.auth.createUser(data.email, password).then(
+    FirebaseUtils.auth.createUser(data.email, password).then(
         function (userRecord) {
           let callback = (results, err = null) => {
             if (err != null) {
@@ -187,11 +185,7 @@ router.post('/user', function (req, res, next) {
         console.error(error)
         res.status(HttpStatus.SERVICE_UNAVAILABLE).json(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.UserCreationError))
       })
-    })
-  } catch (err) {
-    console.error(err)
-    res.status(HttpStatus.SERVICE_UNAVAILABLE).json(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.UserCreationError))
-  }
+  })
 })
 
 /**

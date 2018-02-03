@@ -19,7 +19,7 @@ const Archive = require('../models/archive')
 const Auth = (function () {
   var self = {}
 
-   /**
+  /**
    * Create a firebase user.
    * Refer to https://stackoverflow.com/questions/47268411/create-users-server-side-firebase-functions
    *
