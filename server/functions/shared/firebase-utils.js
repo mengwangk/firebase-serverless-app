@@ -50,15 +50,15 @@ const Storage = (function () {
    * https://cloud.google.com/nodejs/docs/reference/storage/1.5.x/Bucket
    *
    * @param {Object} entity Entity.
-   * @param {Object} file File object.
+   * @param {string} filePath File path.
    */
-  self.upload = function (entity, file) {
+  self.upload = function (entity, filePath) {
     var bucket = firebaseAdmin.storage().bucket()
     var options = {
       destination: entity.avatar,
       resumable: false
     }
-    return bucket.upload(file.path, options)
+    return bucket.upload(filePath, options)
   }
 
   return self

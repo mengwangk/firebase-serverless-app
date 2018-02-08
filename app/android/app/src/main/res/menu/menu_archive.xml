@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.activity.ArchiveSummaryActivity">
+
+    <item android:id="@+id/action_archive_filter" android:title="@string/action_archive_filter"
+        android:orderInCategory="100" android:icon="@android:drawable/ic_menu_my_calendar"  app:showAsAction="always" />
+
+    <item android:id="@+id/action_archive_delete" android:title="@string/action_archive_delete"
+        android:orderInCategory="200" android:icon="@android:drawable/ic_menu_delete"  app:showAsAction="always"  />
+</menu>

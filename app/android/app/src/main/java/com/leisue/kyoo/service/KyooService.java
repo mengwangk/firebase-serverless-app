@@ -93,6 +93,13 @@ public interface KyooService {
     // -------- END History operation ---------------------- //
 
 
+    // -------- BEGIN Archive operation ---------------------- //
+    @DELETE("/archive/{entityId}/{archiveIds}")
+    Call<String> deleteArchives(@Path("entityId") String entityId, @Path("archiveIds") String archiveIds);
+
+
+
+    // -------- END History operation ---------------------- //
 
 
     // -------- BEGIN Lookup operation ---------------------- //

@@ -91,7 +91,7 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
         setHeaderView();
 
         // Testing
-        //launchActivity(SettingsActivity.class);
+        //launchActivity(OfflineSyncActivity.class);
     }
 
     private void setupQueues(final List<Queue> queues) {

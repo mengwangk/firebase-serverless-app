@@ -318,7 +318,7 @@ public class SettingsActivity extends BaseActivity implements EasyPermissions.Pe
 
         // Update the entity details
         final Entity entity = new Entity();
-        entity.setEmail("upload_user123@gmail.com");
+        entity.setEmail("testing123@gmail.com");
         entity.setName("test user");
         entity.setIndustry(entityIndustry.getSelectedItem().toString());
 

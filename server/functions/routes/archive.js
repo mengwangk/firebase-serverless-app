@@ -35,12 +35,13 @@ router.get('/:entityId/:archiveId', function (req, res, next) {
 
 /**
  * Delete archived bookings for an entity.
+ *
  * @public
  */
 router.delete('/:entityId', function (req, res, next) {
   const entityId = req.params.entityId
 
-  // Proceed to delete the archives
+  // Proceed to delete the archives - NOT IMPLEMENTED. Use another delete method below.
   FirebaseUtils.fireStore.deleteAllArchives(entityId)
 
   // Do not wait for the deletion to complete

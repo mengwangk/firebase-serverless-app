@@ -94,7 +94,7 @@ public class QueueListActivity extends AppCompatActivity implements QueueListAda
     }
 
     @Override
-    public void onQueueSelected(DocumentSnapshot restaurant) {
+    public void onQueueSelected(DocumentSnapshot queue) {
 
     }
 

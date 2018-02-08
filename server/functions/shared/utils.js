@@ -52,7 +52,8 @@ const Mapper = (function () {
 
     // Map the field values
     for (let [key, value] of Object.entries(target)) {
-      if (source[key]) target[key] = source[key]
+      //if (source[key]) target[key] = source[key]
+      if (source.hasOwnProperty(key)) target[key] = source[key]
     }
   }
 
@@ -88,10 +89,10 @@ const Upload = (function () {
    * Create the storage reference.
    *
    * @param {Object} entity Entity.
-   * @param {Object} file Avatar file.
+   * @param {string} fileName File name.
    */
-  self.createStoragePath = function (entity, file) {
-    return '/' + config.app_name + '/' + entity.id + '/' + file.name
+  self.createStoragePath = function (entity, fileName) {
+    return '/' + config.app_name + '/' + entity.id + '/' + fileName
   }
 
   return self

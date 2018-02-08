@@ -26,8 +26,17 @@
             android:name=".ui.activity.SettingsActivity"
             android:label="@string/action_settings" />
         <activity
-            android:name=".ui.activity.ArchiveActivity"
+            android:name=".ui.activity.ArchiveSummaryActivity"
             android:label="@string/action_archives" />
+
+        <activity
+            android:name=".ui.activity.ArchiveDetailsActivity"
+            android:label="@string/archive_details" android:parentActivityName=".ui.activity.ArchiveSummaryActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ui.activity.ArchiveSummaryActivity" />
+        </activity>
+
         <activity
             android:name=".ui.activity.QueueConfigActivity"
             android:label="@string/queue_config" />
@@ -42,6 +51,10 @@
                 android:value=".ui.activity.MainActivity" />
 
         </activity>
+
+        <activity
+            android:name=".ui.activity.OfflineSyncActivity"
+            android:label="@string/queue_config" />
 
     </application>
 

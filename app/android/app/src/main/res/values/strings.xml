@@ -8,8 +8,13 @@
     <string name="action_queue_list">Queue List</string>
     <string name="action_save_to_archive">Save to Archive</string>
 
+    <string name="action_archive_delete">Delete Archives</string>
+    <string name="action_archive_filter">Filter Archives</string>
+
+    <string name="archive_details">Archive Details</string>
     <string name="queue_list">Queue List</string>
     <string name="queue_config">Queue Configuration</string>
+    <string name="offline_sync">Offline Sync Testing</string>
     <string name="header_booking">Booking</string>
     <string name="header_entity">Entity</string>
     <string name="header_queue">Queue</string>
@@ -71,11 +76,13 @@
     <string name="message_entity_configure_status_code">Unable to configure entity. Status code is %1$d</string>
     <string name="message_entity_configure_error">Unable to configure entity. Please try again</string>
     <string name="message_configure_queue">You are one step away. Configure a queue now...</string>
+    <string name="message_archive_summary_na">No archives available</string>
     <string name="message_no_photo_chosen">No photo chosen</string>
     <string name="message_uploading">Uploading...</string>
     <string name="message_upload_success">Image uploaded.</string>
     <string name="message_upload_failed">Image upload failed.</string>
     <string name="message_industry_load_error">Unable to load industry</string>
     <string name="message_industry_load_status_code">Unable to load industry. Status code is %1$d</string>
+    <string name="message_load_archives_error">Error loading archives</string>
 
 </resources>

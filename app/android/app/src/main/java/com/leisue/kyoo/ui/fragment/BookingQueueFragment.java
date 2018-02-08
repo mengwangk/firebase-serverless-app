@@ -204,7 +204,7 @@ public class BookingQueueFragment extends Fragment implements
     public void onBooking(Booking booking) {
         Log.i(TAG, "Booking received");
 
-        if (TextUtils.isEmpty(booking.getContactNo()) || booking.getNoOfSeats() <= 0) {
+        if (TextUtils.isEmpty(booking.getContactNo())) {
             Snackbar.make(getActivity().findViewById(android.R.id.content), R.string.message_invalid_booking_info, Snackbar.LENGTH_LONG).show();
             return;
         }

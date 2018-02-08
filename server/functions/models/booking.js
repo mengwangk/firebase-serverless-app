@@ -1,6 +1,7 @@
 'use strict'
 
 const uuidv4 = require('uuid/v4')
+const constants = require('../shared/constants')
 
 /**
  * Booking.
@@ -17,10 +18,10 @@ class Booking {
   }
 
   constructor (name, contactNo, noOfSeats, id = '', bookingNo = '', bookedDate = Date.now()) {
-    (!id) ? this.id = uuidv4() : this.id = id
+    !id ? this.id = uuidv4() : this.id = id
+    !noOfSeats || noOfSeats <= 0 ? this.noOfSeats = constants.DefaultSeatQuantity : this.noOfSeats = noOfSeats
     this.name = name
     this.contactNo = contactNo
-    this.noOfSeats = noOfSeats
     this.bookedDate = bookedDate
     this.bookingNo = bookingNo
   }

@@ -87,12 +87,6 @@ const BOOKING_STATUS = {
 }
 
 /**
- * Application name.
- * @constant
- */
-const APP_NAME = 'kyoala'
-
-/**
  * Entity collection in Firestore.
  * @constant
  */
@@ -140,9 +134,14 @@ const MAXIMUM_FILE_SIZE_KB = 2048
  */
 const ALLOWD_IMAGE_TYPES = /\.(jpg|jpeg|png|gif)$/
 
+/**
+ * Default seat quantity.
+ * @constant
+ */
+const DEFAULT_SEAT_QUANTITY = 3
+
 // Application constants
 define('Partials', PARTIALS)
-define('AppName', APP_NAME)
 define('BookingAction', BOOKING_ACTION)
 define('HistoryAction', HISTORY_ACTION)
 define('BookingStatus', BOOKING_STATUS)
@@ -154,6 +153,7 @@ define('ArchiveCollection', ARCHIVE_COLLECTION)
 define('TransactionBatchSize', TRANSACTION_BATCH_SIZE)
 define('MaxFileSize', MAXIMUM_FILE_SIZE_KB)
 define('AllowedImageTypes', ALLOWD_IMAGE_TYPES)
+define('DefaultSeatQuantity', DEFAULT_SEAT_QUANTITY)
 
 // Server error messages
 define('ServerError', 'Server error')
@@ -169,6 +169,7 @@ define('BatchArchive', 'Archive request submitted')
 define('QueueNotEmpty', 'Queue is not empty')
 define('HistoryNotEmpty', 'History is not empty')
 define('UserCreationError', 'Unable to create user')
+define('EntityCreationError', 'Unable to create entity')
 define('FileExceededLimit', 'File size exceeded allowed limit')
 define('FileTypeNotAllowed', 'File type not allowed')
 define('BatchClearArchive', 'Clear archive request submitted')

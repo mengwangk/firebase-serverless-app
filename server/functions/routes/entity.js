@@ -12,7 +12,6 @@ const Queue = require('../models/queue')
 const Entity = require('../models/entity')
 const FirebaseUtils = require('../shared/firebase-utils')
 const Busboy = require('busboy')
-const inspect = require('util').inspect
 const router = express.Router()
 
 /**
@@ -122,32 +121,42 @@ router.put('/:entityId', function (req, res, next) {
  * @public
  */
 router.post('/user', function (req, res, next) {
-  // Instantiate busboy
-  var busboy = new Busboy({ headers: req.headers })
-  var fields = {}
-  var uploadedFile = {}
+  const busboy = new Busboy({ headers: req.headers })
+  const formData = {}
+  const uploads = {}
+  const tmpdir = os.tmpdir()
 
   // Listen for file upload
-  busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-    console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype)
+  busboy.on('file', function (fieldName, file, fileName, encoding, mimeType) {
+    // Capture file info
+    const filePath = path.join(tmpdir, fileName)
+    uploads[fieldName] = {}
+    uploads[fieldName].path = filePath
+    uploads[fieldName].file = file
+    uploads[fieldName].name = fileName
+    uploads[fieldName].encoding = encoding
+    uploads[fieldName].mimeType = mimeType
+
+    // Write to tmpdir
+    file.pipe(fs.createWriteStream(filePath))
+
     file.on('data', function (data) {
-      console.log('File [' + fieldname + '] got ' + data.length + ' bytes')
+      uploads[fieldName].size = data.length
     })
+
     file.on('end', function () {
-      console.log('File [' + fieldname + '] Finished')
+      // File upload completed
     })
   })
 
   // Listen for form fields
-  busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
-    console.log('Field [' + fieldname + ']: value: ' + inspect(val))
+  busboy.on('field', function (fieldName, val, fieldNameTruncated, valTruncated, encoding, mimeType) {
+    formData[fieldName] = val
   })
 
   // When everything is done
   busboy.on('finish', function () {
-    console.log('Done parsing form!')
-    res.writeHead(303, { Connection: 'close', Location: '/' })
-    res.end()
+    createUser(req, res, formData, uploads)
   })
 
   // The raw bytes of the upload will be in req.rawBody. Send it to
@@ -155,85 +164,95 @@ router.post('/user', function (req, res, next) {
   busboy.end(req.rawBody)
 })
 
-/*
-router.post('/user', function (req, res, next) {
-  // parse a file upload
-  const form = new formidable.IncomingForm()
-  form.parse(req, function (err, fields, files) {
-    console.log('req => ' + JSON.stringify(req))
-    console.log('error => ' + JSON.stringify(err))
-    console.log('fields => ' + JSON.stringify(fields))
-    console.log('files => ' + JSON.stringify(files))
-
-    const entityRequest = JSON.parse(fields.entityRequest)
-    const data = entityRequest.entity
-    const password = entityRequest.password
+/**
+ * Creat the user and entity.
+ *
+ * @param {Object} req Request object.
+ * @param {Object} res Response object.
+ * @param {Object} formData Form data.
+ * @param {Object} uploads Uploaded file.
+ */
+const createUser = function (req, res, formData, uploads) {
+  const entityRequest = JSON.parse(formData.entityRequest)
+  const data = entityRequest.entity
+  const password = entityRequest.password
 
     // Validate the entity
-    if (!data.name || !data.email || !password) {
-      res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, fields.entityRequest))
+  if (!data.name || !data.email || !password) {
+    res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, formData.entityRequest))
+    removeUploads(uploads)
+    return
+  }
+
+  // Create the entity
+  const entity = new Entity(data.name, data.email)
+
+  // Validate the uploaded file. The uploaded photo field name is called "avatar"
+  const avatarFile = uploads.avatar
+
+  if (avatarFile) {
+    // Set avatar path
+    entity.avatar = utils.Upload.createStoragePath(entity, avatarFile.name)
+
+    // Check file size
+    if (utils.Upload.hasExceedMaxAllowedSize(avatarFile.size)) {
+      res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileExceededLimit))
+      removeUploads(uploads)
       return
     }
 
-    // Create the entity
-    const entity = new Entity(data.name, data.email)
-
-    // Validate the uploaded file
-    const avatarFile = files.avatar
-    var storagePath = null
-    if (avatarFile) {
-        // Set avatar path
-      storagePath = utils.Upload.createStoragePath(entity, avatarFile)
-      entity.avatar = storagePath
+      // Check file type
+    if (!utils.Upload.isFileTypeAllowed(avatarFile.name)) {
+      res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileTypeNotAllowed))
+      removeUploads(uploads)
+      return
     }
-      // Map the remaining entity values from the request
-    utils.Mapper.assign(entity, data)
+  }
 
+  // Map the remaining entity values from the request
+  utils.Mapper.assign(entity, data)
+
+  // Create the user
+  FirebaseUtils.auth.createUser(data.email, password).then((user) => {
+    // Create entity
+    return FirebaseUtils.fireStore.saveEntity(entity)
+  }).catch((err) => {
+    // User creation error
+    throw new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.UserCreationError, err)
+  }).then((results) => {
+    // Proceed to upload
     if (avatarFile) {
-        // Check file size
-      if (utils.Upload.hasExceedMaxAllowedSize(avatarFile.size)) {
-        res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileExceededLimit))
-        return
-      }
-        // Check file type
-      if (!utils.Upload.isFileTypeAllowed(avatarFile.name)) {
-        res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.FileTypeNotAllowed))
-        return
-      }
+      return FirebaseUtils.storage.upload(entity, avatarFile.path)
     }
-
-      // Create the firebase user
-    FirebaseUtils.auth.createUser(data.email, password).then(
-        function (userRecord) {
-          let callback = (results, err = null) => {
-            if (err != null) {
-              res.status(err.statusCode).json(err)
-            } else {
-              if (avatarFile) {
-                FirebaseUtils.storage.upload(entity, avatarFile).then(function (data) {
-                  // var file = data[0];
-                  // console.log('file --> ' + JSON.stringify(entity.avatar))
-                  res.status(HttpStatus.CREATED).json(results)
-                }).catch(function (error) {
-                  // Since user is already created, the upload error is ignored
-                  console.error(error)
-                  res.status(HttpStatus.CREATED).json(results)
-                })
-              } else {
-                res.status(HttpStatus.CREATED).json(results)
-              }
-            }
-          }
-          // Create the entity
-          FirebaseUtils.fireStore.saveEntity(callback, entity)
-        }
-      ).catch(function (error) {
-        console.error(error)
-        res.status(HttpStatus.SERVICE_UNAVAILABLE).json(new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.UserCreationError))
-      })
+  }).catch((err) => {
+    // Entity creation error
+    if (err instanceof ApplicationError) {
+      throw err
+    } else {
+      throw new ApplicationError(HttpStatus.SERVICE_UNAVAILABLE, constants.EntityCreationError, err)
+    }
+  }).then(() => {
+    removeUploads(uploads)
+    res.status(HttpStatus.CREATED).json(entity)
+  }).catch((err) => {
+    console.err(err)
+    removeUploads(uploads)
+    res.status(HttpStatus.SERVICE_UNAVAILABLE).json(err)
   })
-})
-*/
+}
+
+/**
+ * Remove the uploaded files.
+ *
+ * @param {Object} uploads Uploaded files.
+ */
+const removeUploads = function (uploads) {
+   // Remove the file
+  for (const name in uploads) {
+    const file = uploads[name].path
+    fs.unlinkSync(file)
+  }
+}
 
 /**
  * Get a list of queues belonged to this entity.

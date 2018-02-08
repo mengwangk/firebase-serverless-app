@@ -39,6 +39,8 @@ public class History extends Booking {
     @Expose
     private Long historyDate;
 
+    public History() {
+    }
 
     public String getStatus() {
         return status;

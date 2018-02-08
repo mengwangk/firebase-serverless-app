@@ -84,6 +84,8 @@ dependencies {
     debugImplementation "com.squareup.leakcanary:leakcanary-android:$leakcanaryVersion"
     releaseImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanaryVersion"
     testImplementation "com.squareup.leakcanary:leakcanary-android-no-op:$leakcanaryVersion"
+
+    implementation "com.firebase:firebase-jobdispatcher:$firebaseJobDispatcherVersion"
 }
 
 apply plugin: 'com.google.gms.google-services'

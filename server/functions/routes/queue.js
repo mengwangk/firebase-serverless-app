@@ -56,7 +56,7 @@ router.post('/:entityId/:queueId', function (req, res, next) {
   const booking = new Booking(data.name, data.contactNo, data.noOfSeats)
 
   // Validate the booking
-  if (!booking.name || !booking.contactNo) {
+  if (!booking.contactNo) {
     res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, req.body.booking))
     return
   }
@@ -87,13 +87,14 @@ router.put('/:entityId/:queueId/:bookingId', function (req, res, next) {
   const booking = new Booking(data.name, data.contactNo, data.noOfSeats, bookingId)
 
   // Validate the booking
-  if (!booking.id || !booking.name || !booking.contactNo) {
+  if (!booking.id || !booking.contactNo) {
     res.status(HttpStatus.BAD_REQUEST).json(new ApplicationError(HttpStatus.BAD_REQUEST, constants.InvalidData, req.body.booking))
     return
   }
   // Map the remaining booking values from the request
   utils.Mapper.assign(booking, data)
-
+  
+  // Save the booking info
   FirebaseUtils.fireStore.saveBooking(entityId, queueId, booking).then((results) => {
     res.status(HttpStatus.OK).json(results)
   }).catch((err) => {

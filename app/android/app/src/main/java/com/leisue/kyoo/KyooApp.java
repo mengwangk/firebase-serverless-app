@@ -1,6 +1,7 @@
 package com.leisue.kyoo;
 
 import android.app.Application;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.support.v7.app.AppCompatDelegate;
 
@@ -25,6 +26,8 @@ public final class KyooApp extends Application {
     private static Context context = null;  // Global application context
 
     private Entity entity = null;
+
+    private static KyooDatabase kyooDatabase;
 
     public static KyooApp getInstance(Context context) {
         return (KyooApp) context.getApplicationContext();
@@ -75,5 +78,12 @@ public final class KyooApp extends Application {
 
     public static KyooService getApiService() {
         return RetrofitClient.getClient(API_SERVER_URL).create(KyooService.class);
+    }
+
+    public static KyooDatabase getDatabase(){
+        if (kyooDatabase == null) {
+            kyooDatabase = Room.databaseBuilder(getContext(), KyooDatabase.class, "kyoo-db").allowMainThreadQueries().build();
+        }
+        return kyooDatabase;
     }
 }

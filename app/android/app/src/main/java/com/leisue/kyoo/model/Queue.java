@@ -1,5 +1,8 @@
 package com.leisue.kyoo.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.google.gson.annotations.Expose;
@@ -10,6 +13,7 @@ import java.io.Serializable;
 /**
  * POJO for queue.
  */
+@android.arch.persistence.room.Entity
 public class Queue implements Serializable, Comparable<Queue> {
 
     public static final String FIELD_NAME = "name";
@@ -17,21 +21,33 @@ public class Queue implements Serializable, Comparable<Queue> {
 
     @SerializedName("id")
     @Expose
-    private String id;
+    @PrimaryKey
+    @NonNull
+    private String id = "";
+
     @SerializedName("name")
     @Expose
+    @ColumnInfo(name = "name")
     private String name;
+
     @SerializedName("minCapacity")
     @Expose
+    @ColumnInfo(name = "min_capacity")
     private Integer minCapacity;
+
     @SerializedName("maxCapacity")
     @Expose
+    @ColumnInfo(name = "max_capacity")
     private Integer maxCapacity;
+
     @SerializedName("counter")
     @Expose
+    @ColumnInfo(name = "counter")
     private Integer counter;
+
     @SerializedName("prefix")
     @Expose
+    @ColumnInfo(name = "prefix")
     private String prefix;
 
     public String getId() {

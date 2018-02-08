@@ -79,6 +79,9 @@ public class QueueConfigActivity extends BaseActivity implements QueueAdapter.On
         queuesRecycler.setLayoutManager(new LinearLayoutManager(this));
         queuesRecycler.setItemAnimator(new DefaultItemAnimator());
 
+
+        // NOTE: You can also use the Firestore API to get the queues information directly
+        // Below use the REST APIs
         final Entity entity = KyooApp.getInstance(this).getEntity();
         KyooApp.getApiService().getQueues(entity.getId()).enqueue(new Callback<List<Queue>>() {
             @Override
