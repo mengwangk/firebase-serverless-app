@@ -165,7 +165,7 @@ router.post('/user', function (req, res, next) {
 })
 
 /**
- * Creat the user and entity.
+ * Create the user and entity.
  *
  * @param {Object} req Request object.
  * @param {Object} res Response object.
