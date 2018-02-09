@@ -17,8 +17,7 @@ class Archive extends History {
    * @param {string} queueName Queue name.
    */
   constructor (status, history, queueName) {
-    super(history.queueId, status, history, history.historyDate)
-    this.queueName = queueName
+    super(history.queueId, queueName, status, history, history.historyDate)
   }
 }
 module.exports = Archive

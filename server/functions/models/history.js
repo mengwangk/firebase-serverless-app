@@ -28,14 +28,16 @@ class History extends Booking {
   /**
    * Constructor.
    * @param {string} queueId Queue id.
+   * @param {string} queueName Queue name
    * @param {string} status Status - Removed or Done.
    * @param {Object} booking Booking instance.
    * @param {number} Timestamp.
    */
-  constructor (queueId, status, booking, historyDate = Date.now()) {
+  constructor (queueId, queueName, status, booking, historyDate = Date.now()) {
     super(booking.name, booking.contactNo, booking.noOfSeats, booking.id, booking.bookingNo, booking.bookedDate)
     this.status = status
     this.queueId = queueId
+    this.queueName = queueName
     this.historyDate = historyDate
   }
 }

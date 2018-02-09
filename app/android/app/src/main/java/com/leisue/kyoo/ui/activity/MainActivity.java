@@ -27,6 +27,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Flowable;
+import io.reactivex.functions.Consumer;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -90,6 +92,7 @@ public class MainActivity extends BaseActivity implements BaseActivity.OnEntityL
         KyooApp.getInstance(this).setEntity(entity);  // Set the returned entity into global application context
         setHeaderView();
 
+        //
         // Testing
         //launchActivity(OfflineSyncActivity.class);
     }

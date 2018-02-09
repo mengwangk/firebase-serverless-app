@@ -62,6 +62,13 @@ const PARTIALS = {
 }
 
 /**
+ * Possible actions queue.
+ */
+const QUEUE_ACTION = {
+  autoAssign: 'auto'
+}
+
+/**
  * Possible actions for active bookings.
  */
 const BOOKING_ACTION = {
@@ -144,6 +151,7 @@ const DEFAULT_SEAT_QUANTITY = 3
 define('Partials', PARTIALS)
 define('BookingAction', BOOKING_ACTION)
 define('HistoryAction', HISTORY_ACTION)
+define('QueueAction', QUEUE_ACTION)
 define('BookingStatus', BOOKING_STATUS)
 define('EntityCollection', ENTITY_COLLECTION)
 define('QueueCollection', QUEUE_COLLECTION)

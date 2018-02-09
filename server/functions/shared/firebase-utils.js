@@ -91,7 +91,7 @@ const FireStore = (function () {
         batchArchiveHistory(archiveSummary, entityId, queues, firebaseAdmin.firestore(), historyColRef, BATCH_SIZE, resolve, reject)
       })
     }).catch((err) => {
-      console.error(err)
+      throw err
     })
   }
 
@@ -354,7 +354,7 @@ const FireStore = (function () {
    * @public
    */
   self.deleteAllArchives = function (entityId) {
-      // TODO
+      // TODO - currently not required as per the screen design
   }
 
   /**
@@ -460,7 +460,7 @@ const FireStore = (function () {
       return t.get(queueDocRef).then(doc => {
         if (doc.exists) {
           if (!booking.bookingNo) {
-          // Set the booking no
+            // Set the booking no
             var queue = doc.data()
             var newCounter = queue.counter + 1
             booking.bookingNo = queue.prefix + newCounter.pad(3)
@@ -510,12 +510,12 @@ const FireStore = (function () {
    *
    * @param {string} entityId Entity id.
    * @param {string} queueId  Queue id.
-   * @param {Object} doc Document snapshot.
+   * @param {string} queueName  Queue name.
+   * @param {Object} booking Booking data.
    * @param {string} status Removed or Done.
    */
-  const createHistoryBooking = function (entityId, queueId, doc, status) {
-    const booking = doc.data()
-    const history = new History(queueId, status, booking)
+  const createHistoryBooking = function (entityId, queueId, queueName, booking, status) {
+    const history = new History(queueId, queueName, status, booking)
     var historyData = JSON.stringify(history)
     return JSON.parse(historyData)
   }
@@ -530,24 +530,37 @@ const FireStore = (function () {
    * @public
    */
   self.deleteBooking = function (action, entityId, queueId, bookingId) {
+    const queueDocRef = firebaseAdmin.firestore().collection(constants.EntityCollection).doc(entityId).collection(constants.QueueCollection).doc(queueId)
     const bookingDocRef = firebaseAdmin.firestore().collection(constants.QueueCollection).doc(entityId).collection(queueId).doc(bookingId)
     const historyDocRef = firebaseAdmin.firestore().collection(constants.HistoryCollection).doc(entityId).collection(constants.QueueCollection).doc(bookingId)
-    return firebaseAdmin.firestore().runTransaction(t => {
-      return t.get(bookingDocRef).then(doc => {
-        if (doc.exists) {
-          // Save to history
-          const booking = doc.data()
-          const status = (action === constants.BookingAction.done ? constants.BookingStatus.done : constants.BookingStatus.removed)
-          const historyBooking = createHistoryBooking(entityId, queueId, doc, status)
-          t.set(historyDocRef, historyBooking)
+    return new Promise((resolve, reject) => {
+      firestoreUtils.getDocument(queueDocRef).then((queue) => {
+        return firebaseAdmin.firestore().runTransaction(t => {
+          return t.get(bookingDocRef).then(doc => {
+            if (doc.exists) {
+              // Save to history
+              const booking = doc.data()
+              const status = (action === constants.BookingAction.done ? constants.BookingStatus.done : constants.BookingStatus.removed)
+              const historyBooking = createHistoryBooking(entityId, queueId, queue.name, booking, status)
+              t.set(historyDocRef, historyBooking)
 
-          // Remove the booking
-          t.delete(bookingDocRef)
-          return Promise.resolve(booking)
-        } else {
-          return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(bookingDocRef.path)))
-        }
+              // Remove the booking
+              t.delete(bookingDocRef)
+              return Promise.resolve(booking)
+            } else {
+              return Promise.reject(new ApplicationError(HttpStatus.NOT_FOUND, constants.NoRecordFound, 'Path: {0}'.format(bookingDocRef.path)))
+            }
+          })
+        })
+      }).then((results) => {
+        resolve(results)
+      }).catch((err) => {
+        reject(err)
       })
+    }).then((results) => {
+      return results
+    }).catch((err) => {
+      throw err
     })
   }
 

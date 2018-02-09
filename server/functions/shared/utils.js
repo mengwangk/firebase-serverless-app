@@ -52,7 +52,7 @@ const Mapper = (function () {
 
     // Map the field values
     for (let [key, value] of Object.entries(target)) {
-      //if (source[key]) target[key] = source[key]
+      // if (source[key]) target[key] = source[key]
       if (source.hasOwnProperty(key)) target[key] = source[key]
     }
   }

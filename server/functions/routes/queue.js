@@ -93,7 +93,7 @@ router.put('/:entityId/:queueId/:bookingId', function (req, res, next) {
   }
   // Map the remaining booking values from the request
   utils.Mapper.assign(booking, data)
-  
+
   // Save the booking info
   FirebaseUtils.fireStore.saveBooking(entityId, queueId, booking).then((results) => {
     res.status(HttpStatus.OK).json(results)
@@ -146,7 +146,7 @@ router.delete('/:entityId/:queueId/:bookingId/:action', function (req, res, next
 
   // Delete the booking info
   FirebaseUtils.fireStore.deleteBooking(action, entityId, queueId, bookingId).then((results) => {
-    // console.log(results)
+    // console.dir(results)
     res.status(HttpStatus.OK).json(constants.BookingDeleted)
   }).catch((err) => {
     res.status(err.statusCode).json(err)
