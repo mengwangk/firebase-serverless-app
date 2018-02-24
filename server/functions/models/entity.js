@@ -21,15 +21,17 @@ class Entity {
    *
    * @param {string} name Name.
    * @param {string} email Email.
-   * @param {string} id Optiona id.
-   * @param {string} contactNo Optiona contact no.
+   * @param {string} id Optional id.
+   * @param {string} contactNo Optional contact no.
    * @param {string} avatar Optional avatar URL.
    * @param {string} industry Optional industry.
    * @param {string} country Optional country.
    * @param {string} address Optional address.
+   * @param {string} autoAssignQueue Optional auto assign queue setting.
+   * @param {string} printingDetails Optional printing details settings.
    * @public
    */
-  constructor (name, email, id = '', contactNo = '', avatar = '', industry = '', country = '', address = '') {
+  constructor (name, email, id = '', contactNo = '', avatar = '', industry = '', country = '', address = '', autoAssignQueue = false, printingDetails = '') {
     (!id) ? this.id = uuidv4() : this.id = id
     this.name = name
     this.email = email
@@ -38,6 +40,8 @@ class Entity {
     this.country = country
     this.address = address
     this.contactNo = contactNo
+    this.autoAssignQueue = autoAssignQueue
+    this.printingDetails = printingDetails
   }
 }
 module.exports = Entity

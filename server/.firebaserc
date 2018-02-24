@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "kyoala-api-dev",
-    "kyoala-api-dev": "kyoala-api-dev"
+    "kyoala-api-dev": "kyoala-api-dev",
+    "kyoo": "kyoo-f4a52"
   }
 }

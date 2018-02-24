@@ -18,11 +18,13 @@ const entity = require('./routes/entity')
 const lookup = require('./routes/lookup')
 const history = require('./routes/history')
 const archive = require('./routes/archive')
+const support = require('./routes/support')
 
 const app = express()
 
 // Call ONCE only during start-up
 var serviceAccount = JSON.parse(fs.readFileSync(path.join(__dirname, config.service_account), { encoding: 'utf8' }))
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: config.database_url,
@@ -67,6 +69,7 @@ app.use('/queue', queue)
 app.use('/lookup', lookup)
 app.use('/history', history)
 app.use('/archive', archive)
+app.use('/support', support)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

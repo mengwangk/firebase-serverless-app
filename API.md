@@ -64,4 +64,15 @@
     | ------------- |-------------      | -------------|
     | /archive/:entityId     |  GET            | Retrieve archive summaries for a specified entity.|
     | /archive/:entityId/:archiveId | GET     | Retrieve archive details for a specified archive id. | 
-    | /archive//:entityId/:archiveIds | DELETE     | Delete all archives passed in as comma separated list of archive ids.| 
+    | /archive/:entityId/:archiveIds | DELETE     | Delete all archives passed in as comma separated list of archive ids.| 
+
+## Support
+* server/functions/routes/support.js
+* Change the email and password in env.json accordingly
+* Make sure the Gmail account is allowed to send email (refer to https://github.com/firebase/functions-samples/tree/master/quickstarts/email-users )
+* Gmail has a limit. Do change this API later to use a custom SMTP provider.
+
+
+    | **URL**           | **HTTP**        |  **Description** | 
+    | -------------     |-------------    | -----------------|
+    | /support/    |  POST            | Send a support email.|
